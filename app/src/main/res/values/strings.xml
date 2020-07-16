@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name" translatable="false">Diseño</string>
+    <string name="Txt_Correo">Ingresa tu correo</string>
+    <string name="Txt_Contraseña">Ingresa tu contraseña</string>
+    <string name="Btn_Ingresar">Iniciar sesión</string>
+    <string-array name="tipoEmpleado">
+        <item>Bodega</item>
+        <item>Cajero</item>
+    </string-array>
+    <string name="title_activity_menu_cajero">MenuCajero</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+
+    <string name="home_second">Home Second</string>
+
+</resources>
