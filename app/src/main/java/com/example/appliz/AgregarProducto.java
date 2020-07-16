@@ -22,8 +22,10 @@ public class AgregarProducto extends AppCompatActivity {
     ConexionMySql conexion;
     Button btn_Escanear, btn_Agregar;
     EditText etCodigoAg, etNombreAg, etPrecioAg, etCategoriaAg, etExistenciaAg, etDescripcionAg;
-    String Codigo,Nombre,Categoria,Descripcion;
-    int Existencia,Precio;
+    String Nombre,Categoria,Descripcion;
+    int Existencia;
+    double Precio;
+    float Codigo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +46,16 @@ public class AgregarProducto extends AppCompatActivity {
         btn_Agregar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Codigo = etCodigoAg.getText().toString();
+                Codigo = Float.parseFloat(etCodigoAg.getText().toString());
                 Nombre = etNombreAg.getText().toString();
-                Precio = Integer.parseInt(etPrecioAg.getText().toString());
+                Precio = Double.parseDouble(etPrecioAg.getText().toString());
                 Categoria = etCategoriaAg.getText().toString();
                 Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
                 Descripcion = etDescripcionAg.getText().toString();
 
 
-                OperaABM opera = new OperaABM();
-                opera.execute("insert into producto (codigo,nombre,fechacad,precio,categoria,existencia,descripcion) values(?,?,?,?,?,?,?)","G");
+                Agregar agregar = new Agregar();
+                agregar.execute("insert into producto (Id_Producto,NombreProd,Categoria,existencia,Precio,descripcion) values (?,?,?,?,?,?)","g");
 
             }
         });
@@ -88,27 +90,88 @@ public class AgregarProducto extends AppCompatActivity {
         }
     };//Termina metodo del boton escanear
 
-
-    public class OperaABM extends AsyncTask<String, String, String> {
-        String mensaje = "";
+    public class Agregar extends  AsyncTask<String,String,String>{
+        String mensaje="";
         boolean exito = false;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
         @Override
         protected void onPostExecute(String msj) {
-            Toast.makeText(getApplicationContext(), msj, Toast.LENGTH_SHORT).show();
-
-            if (exito) {
+            Toast.makeText(AgregarProducto.this, msj, Toast.LENGTH_SHORT).show();
+            if (exito){
                 etCodigoAg.setText("");
                 etNombreAg.setText("");
                 etPrecioAg.setText("");
                 etCategoriaAg.setText("");
                 etExistenciaAg.setText("");
                 etDescripcionAg.setText("");
+            }
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Connection con = conexion.Conectar();
+            if (con != null){
+                try {
+                    PreparedStatement ps =con.prepareStatement(strings[0]);
+                    if (strings[1].equals("g")){
+                        ps.setFloat(1,Codigo);
+                        ps.setString(2,Nombre);
+                        ps.setString(3,Categoria);
+                        ps.setInt(4,Existencia);
+                        ps.setDouble(5,Precio);
+                        ps.setString(6,Descripcion);
+                    }
+                    if(ps.executeUpdate() > 0){
+                        exito = true;
+                        if (strings[1].equals("g"))
+                            mensaje = "Registro guardado";
+                    }
+                    else {
+                        if (strings[1].equals("g")) ;
+                        mensaje = "Registro no guardado";
+                    }
+                } catch (Exception e) {
+                   mensaje = e.getMessage();
+                }
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    mensaje=e.getMessage();
+                }
+            }else {
+                mensaje = "Error al conectar con la base de datos";
+            }
+
+            return mensaje;
+        }
+    }
+    /*public class OperaABM extends AsyncTask<String, String, String> {
+        String mensaje = "";
+        boolean exito = false;
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onPostExecute(String msj) {
+            Toast.makeText(AgregarProducto.this, msj, Toast.LENGTH_SHORT).show();
+
+            if (exito) {
+
+                etCodigo.setText("");
+                etContra.setText("");
+                etNombre.setText("");
+                etPuesto.setText("");
+                etSueldo.setText("");
+                etUsuario.setText("");
+
             }
         }
 
@@ -119,26 +182,48 @@ public class AgregarProducto extends AppCompatActivity {
             if (con != null) {
                 try {
                     PreparedStatement ps = con.prepareStatement(strings[0]);
-                    if (strings[1].equals("G")) {
-                        ps.setString(1, Codigo);
+                    if (strings[1].equals("g")) {
+                        ps.setFloat(1, Codigo);
                         ps.setString(2, Nombre);
-                        ps.setInt(3, Precio);
+                        ps.setInt(3,Precio);
                         ps.setString(4, Categoria);
                         ps.setInt(5, Existencia);
                         ps.setString(6, Descripcion);
 
 
                     }
+
+                    if (strings[1].equals("M")) {
+                        ps.setString(1, nombre);
+                        ps.setString(2, puesto);
+                        ps.setDouble(3, sueldo);
+                        ps.setString(4, usuario);
+                        ps.setString(5, pass);
+                        ps.setInt(6, codigo);
+
+                    }
+                    if (strings[1].equals("E")) {
+                        ps.setInt(1, codigo);
+                    }
+
                     if (ps.executeUpdate() > 0) {
 
                         exito = true;
-                        if (strings[1].equals("G")) ;
+                        if (strings[1].equals("g")) ;
                         mensaje = "Registro guardado";
+                        if (strings[1].equals("M"))
+                            mensaje = "Registro modificado";
+                        if (strings[1].equals("E"))
+                            mensaje = "Registro eliminado";
 
                     } else {
 
-                        if (strings[1].equals("G")) ;
+                        if (strings[1].equals("g")) ;
                         mensaje = "Registro no guardado";
+                        if (strings[1].equals("M"))
+                            mensaje = "Registro no modificado";
+                        if (strings[1].equals("E"))
+                            mensaje = "Registro no eliminado";
 
                     }
 
@@ -157,6 +242,6 @@ public class AgregarProducto extends AppCompatActivity {
             return mensaje;
         }
     }//Cierre de la clase ABM
-
+                            */
 
 }//Fin de la clase
