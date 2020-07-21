@@ -9,7 +9,6 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class menu extends AppCompatActivity {
-    private Button Cerrar;
     ImageButton ibAgregar,ibModificar,ibConsultar,ibEliminar;
 
     @Override
@@ -17,8 +16,6 @@ public class menu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-
-        Cerrar = (Button) findViewById(R.id.btnVolver);
         ibAgregar = findViewById(R.id.ibAgregar);
         ibModificar = findViewById(R.id.ibModificar);
         ibConsultar = findViewById(R.id.ibConsultar);
@@ -31,16 +28,16 @@ public class menu extends AppCompatActivity {
                 startActivity(agregar);
             }
         });
-/*
+
         //Ir a menu Modificar
         ibModificar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent modificar = new Intent(getApplicationContext(),MenuModificar.class);
+                Intent modificar = new Intent(getApplicationContext(),ModificarProducto.class);
                 startActivity(modificar);
             }
         });
-        //Ir a menu Consultar
+/*        //Ir a menu Consultar
         ibConsultar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,13 +47,6 @@ public class menu extends AppCompatActivity {
         });
 
 */
-        Cerrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), MenuPrincipalB.class);
-                startActivity(intent);
-            }
-        });
 
     }
 }//cierra el menu

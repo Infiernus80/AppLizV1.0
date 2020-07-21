@@ -14,6 +14,7 @@ public class MenuPrincipalB extends AppCompatActivity {
     Button btn_Cerrar;
     TextView tvBienvenido;
     String Nombre;
+    int IdEmpleado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,14 +27,15 @@ public class MenuPrincipalB extends AppCompatActivity {
         btn_Cerrar = findViewById(R.id.btn_Cerrar);
         Bundle extra = getIntent().getExtras();
         Nombre = extra.getString("NomEmpleado");
-
+        IdEmpleado = extra.getInt("IdEmpleado");
         tvBienvenido.setText("BIENVENIDO: "+Nombre);
-/*
+
         misDatos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent datos = new Intent(getApplicationContext(), MisDatos.class);
                 datos.putExtra("Empleado",Nombre);
+                datos.putExtra("IdEmpleado",IdEmpleado);
                 startActivity(datos);
             }
         });//Termina OnClick de Mis datos*/
@@ -53,5 +55,9 @@ public class MenuPrincipalB extends AppCompatActivity {
                 startActivity(cerrar);
             }
         });
-    }
+    }//Finaliza onCreate
+
+
+
+
 }

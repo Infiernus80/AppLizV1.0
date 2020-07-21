@@ -21,11 +21,10 @@ import java.sql.SQLException;
 public class AgregarProducto extends AppCompatActivity {
     ConexionMySql conexion;
     Button btn_Escanear, btn_Agregar;
-    EditText etCodigoAg, etNombreAg, etPrecioAg, etCategoriaAg, etExistenciaAg, etDescripcionAg;
-    String Nombre,Categoria,Descripcion;
+    EditText etCodigoAg, etNombreAg, etPrecioAg, etCategoriaAg,etSubcategoria, etExistenciaAg, etDescripcionAg;
+    String Codigo,Nombre,Categoria,SubCategoria,Descripcion;
     int Existencia;
     double Precio;
-    float Codigo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,25 +36,27 @@ public class AgregarProducto extends AppCompatActivity {
         etCodigoAg = findViewById(R.id.etCodigoAg);
         etNombreAg = findViewById(R.id.etNombreAg);
         etPrecioAg = findViewById(R.id.etPrecioAg);
-        etCategoriaAg = findViewById(R.id.etDescripcionAg);
+        etCategoriaAg = findViewById(R.id.etCategoriaAg);
         etExistenciaAg = findViewById(R.id.etExistenciaAg);
         etDescripcionAg = findViewById(R.id.etDescripcionAg);
+        etSubcategoria = findViewById(R.id.etSubCategoriaAg);
         conexion = new ConexionMySql();
 
         btn_Escanear.setOnClickListener(mOnClickListener);
         btn_Agregar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Codigo = Float.parseFloat(etCodigoAg.getText().toString());
+                Codigo = etCodigoAg.getText().toString();
                 Nombre = etNombreAg.getText().toString();
                 Precio = Double.parseDouble(etPrecioAg.getText().toString());
                 Categoria = etCategoriaAg.getText().toString();
+                SubCategoria = etSubcategoria.getText().toString();
                 Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
                 Descripcion = etDescripcionAg.getText().toString();
 
 
                 Agregar agregar = new Agregar();
-                agregar.execute("insert into producto (Id_Producto,NombreProd,Categoria,existencia,Precio,descripcion) values (?,?,?,?,?,?)","g");
+                agregar.execute("insert into producto (Id_Producto,NombreProd,Categoria,SubCategoria,existencia,Precio,descripcion) values (?,?,?,?,?,?,?)","g");
 
             }
         });
@@ -101,6 +102,7 @@ public class AgregarProducto extends AppCompatActivity {
                 etNombreAg.setText("");
                 etPrecioAg.setText("");
                 etCategoriaAg.setText("");
+                etSubcategoria.setText("");
                 etExistenciaAg.setText("");
                 etDescripcionAg.setText("");
             }
@@ -119,12 +121,13 @@ public class AgregarProducto extends AppCompatActivity {
                 try {
                     PreparedStatement ps =con.prepareStatement(strings[0]);
                     if (strings[1].equals("g")){
-                        ps.setFloat(1,Codigo);
+                        ps.setString(1,Codigo);
                         ps.setString(2,Nombre);
                         ps.setString(3,Categoria);
-                        ps.setInt(4,Existencia);
-                        ps.setDouble(5,Precio);
-                        ps.setString(6,Descripcion);
+                        ps.setString(4,SubCategoria);
+                        ps.setInt(5,Existencia);
+                        ps.setDouble(6,Precio);
+                        ps.setString(7,Descripcion);
                     }
                     if(ps.executeUpdate() > 0){
                         exito = true;
@@ -149,29 +152,28 @@ public class AgregarProducto extends AppCompatActivity {
 
             return mensaje;
         }
-    }
-    /*public class OperaABM extends AsyncTask<String, String, String> {
+    }//cierre de clase agregarProducto
+/*
+    public class Consulta extends AsyncTask<String, String, String> {
         String mensaje = "";
         boolean exito = false;
 
         @Override
         protected void onPreExecute() {
-
+            super.onPreExecute();
         }
 
         @Override
         protected void onPostExecute(String msj) {
-            Toast.makeText(AgregarProducto.this, msj, Toast.LENGTH_SHORT).show();
-
-            if (exito) {
-
-                etCodigo.setText("");
-                etContra.setText("");
-                etNombre.setText("");
-                etPuesto.setText("");
-                etSueldo.setText("");
-                etUsuario.setText("");
-
+            if (exito){
+                etCodigo.setText(codigo+"");
+                etNombre.setText(nombre);
+                etPuesto.setText(puesto);
+                etSueldo.setText(sueldo+"");
+                etUsuario.setText(usuario+"");
+                etContra.setText(pass+"");
+            }else{
+                Toast.makeText(MainActivity2.this, msj, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -179,69 +181,34 @@ public class AgregarProducto extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
-            if (con != null) {
+            if(con!=null){
                 try {
                     PreparedStatement ps = con.prepareStatement(strings[0]);
-                    if (strings[1].equals("g")) {
-                        ps.setFloat(1, Codigo);
-                        ps.setString(2, Nombre);
-                        ps.setInt(3,Precio);
-                        ps.setString(4, Categoria);
-                        ps.setInt(5, Existencia);
-                        ps.setString(6, Descripcion);
+                    ps.setString(1,nombre);
+                    ps.setInt(2,codigo);
+
+                    ResultSet rs = ps.executeQuery();
+                    if(rs.next()){
+                        exito=true;
+                        codigo = rs.getInt("codigo");
+                        nombre = rs.getString("nombre");
+                        puesto = rs.getString("puesto");
+                        sueldo = rs.getDouble("sueldo");
+                        usuario = rs.getString("usuario");
+                        pass = rs.getString("contrasenia");
 
 
-                    }
-
-                    if (strings[1].equals("M")) {
-                        ps.setString(1, nombre);
-                        ps.setString(2, puesto);
-                        ps.setDouble(3, sueldo);
-                        ps.setString(4, usuario);
-                        ps.setString(5, pass);
-                        ps.setInt(6, codigo);
+                    }else{
 
                     }
-                    if (strings[1].equals("E")) {
-                        ps.setInt(1, codigo);
-                    }
-
-                    if (ps.executeUpdate() > 0) {
-
-                        exito = true;
-                        if (strings[1].equals("g")) ;
-                        mensaje = "Registro guardado";
-                        if (strings[1].equals("M"))
-                            mensaje = "Registro modificado";
-                        if (strings[1].equals("E"))
-                            mensaje = "Registro eliminado";
-
-                    } else {
-
-                        if (strings[1].equals("g")) ;
-                        mensaje = "Registro no guardado";
-                        if (strings[1].equals("M"))
-                            mensaje = "Registro no modificado";
-                        if (strings[1].equals("E"))
-                            mensaje = "Registro no eliminado";
-
-                    }
-
-
-                } catch (SQLException e) {
-                    Toast.makeText(AgregarProducto.this, "Error en la operación", Toast.LENGTH_SHORT).show();
-                }
-                try {
-                    con.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            } else {
-                mensaje = "Error al conectar con la base de datos";
+            }else{
+                mensaje = "Error a conectar a la base de datos";
             }
             return mensaje;
         }
-    }//Cierre de la clase ABM
-                            */
+    }//Cierre de la subclase consulta*/
 
 }//Fin de la clase

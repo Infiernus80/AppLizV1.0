@@ -107,15 +107,6 @@
         app:layout_constraintTop_toBottomOf="@+id/textView9"
         app:srcCompat="@drawable/modificarproducto" />
 
-    <Button
-        android:id="@+id/btnVolver"
-        android:layout_width="124dp"
-        android:layout_height="56dp"
-        android:background="@drawable/btn_redondo"
-        android:text="Volver"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"

@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     public class inicioSesion extends AsyncTask<String, String, String> {
         String mensaje = "";
         boolean exito = false;
+        int IdEmpleado;
         String usuario = Correo.getText().toString();
         String pass = Contraseña.getText().toString();
 
@@ -68,7 +69,10 @@ public class MainActivity extends AppCompatActivity {
             if (exito) {
                 Intent iniciar = new Intent(getApplicationContext(), MenuPrincipalB.class);
                 iniciar.putExtra("NomEmpleado", nombre);
+                iniciar.putExtra("IdEmpleado",IdEmpleado);
                 startActivity(iniciar);
+            }else{
+                Toast.makeText(MainActivity.this, msj, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -77,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
             //Preparamos query a la base de datos
-            String query = "select * from empleados where Correo=? and Contrasenia=?";
+            String query = "select * from empleado where Correo=? and Constrasenia=?";
             if (con != null) {
                 try {
 
@@ -91,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
                     if (rs.next()) {
                         exito = true;
                         //mensaje = "Bienvenido: " + rs.getString("nombre");
-                        nombre = rs.getString("nombre");
+                        nombre = rs.getString("Nombre");
+                        IdEmpleado = rs.getInt("Id_Empleado");
 
 
                     } else {
