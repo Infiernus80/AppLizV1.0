@@ -25,7 +25,7 @@ public class ModificarProducto extends AppCompatActivity {
     ConexionMySql conexion;
 
     EditText CodigoPro, NombrePro, PrecioPro,CategoriaPro,SubCategoriaPro, ExistenciaPro, DescripcionPro;
-    Button btnConsultar,btnModificar;
+    Button btnConsultar,btnModificar,btnEscanear;
     String Codigo,Nombre,Categoria,SubCategoria,Descripcion;
     int Existencia;
     double Precio;
@@ -47,16 +47,19 @@ public class ModificarProducto extends AppCompatActivity {
         CodigoPro = (EditText) findViewById(R.id.etModificarCo);
         NombrePro = (EditText) findViewById(R.id.NomberProMd);
         PrecioPro = (EditText) findViewById(R.id.PrecioProMD);
-        CategoriaPro = (EditText) findViewById(R.id.etCategoriaAg);
-        SubCategoriaPro = (EditText) findViewById(R.id.etSubCategoriaAg);
+        CategoriaPro = (EditText) findViewById(R.id.CategoriaPro);
+        SubCategoriaPro = (EditText) findViewById(R.id.SubCategoriaPro);
         DescripcionPro = (EditText) findViewById(R.id.DescripcionProMd);
         ExistenciaPro = (EditText) findViewById(R.id.ExistenciaProMd);
         btnConsultar = (Button) findViewById(R.id.btnConsultaPro);
+        btnEscanear = (Button) findViewById(R.id.EscanearBtn);
+        btnModificar = (Button) findViewById(R.id.btnModificarPro) ;
 
 
         conexion = new ConexionMySql();
         //ComprobarCategoria();
 
+        btnEscanear.setOnClickListener(EscanearModi);
 
         btnConsultar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,8 +73,28 @@ public class ModificarProducto extends AppCompatActivity {
                 Consulta consulta = new Consulta();
                 consulta.execute("select * from producto where Id_Producto=? or NombreProd=?");
             }
-        });
+        });//cierre de boton consultar
 
+        btnModificar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (CodigoPro.getText().toString().isEmpty()){
+                    Codigo= String.valueOf(-1);
+                }else{
+                    Codigo = CodigoPro.getText().toString();
+                }
+                Nombre = NombrePro.getText().toString();
+                Categoria = CategoriaPro.getText().toString();
+                SubCategoria = SubCategoriaPro.getText().toString();
+                Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                Precio = Double.parseDouble(PrecioPro.getText().toString());
+                Descripcion = DescripcionPro.getText().toString();
+
+                Modificar modificar = new Modificar();
+                modificar.execute("update producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
+                        "Descripcion=? where Id_Producto=? ","M");
+            }
+        });
 
 
     }
@@ -91,11 +114,11 @@ public class ModificarProducto extends AppCompatActivity {
     }//Termina metodo para escanear
 
     //Metodo del boton escanera
-    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
+    public View.OnClickListener EscanearModi = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.btn_EscanearAg:
+                case R.id.EscanearBtn:
                     new IntentIntegrator(ModificarProducto.this).initiateScan();
 
             }
@@ -134,8 +157,8 @@ public class ModificarProducto extends AppCompatActivity {
                 CodigoPro.setText(Codigo + "");
                 NombrePro.setText(Nombre);
                 PrecioPro.setText(Precio+"");
-                CategoriaPro.setText(Categoria);
-                SubCategoriaPro.setText(SubCategoria);
+                CategoriaPro.setText(Categoria+"");
+                SubCategoriaPro.setText(SubCategoria+"");
                 DescripcionPro.setText(Descripcion + "");
                 ExistenciaPro.setText(Existencia + "");
             } else {
@@ -176,4 +199,69 @@ public class ModificarProducto extends AppCompatActivity {
             return mensaje;
         }
     }//Cierre de la subclase consulta
+
+    public class Modificar extends  AsyncTask<String,String,String>{
+        String mensaje="";
+        boolean exito = false;
+        @Override
+        protected void onPostExecute(String msj) {
+
+            if (exito){
+                Toast.makeText(ModificarProducto.this, msj, Toast.LENGTH_SHORT).show();
+                CodigoPro.setText("");
+                NombrePro.setText("");
+                PrecioPro.setText("");
+                CategoriaPro.setText("");
+                SubCategoriaPro.setText("");
+                ExistenciaPro.setText("");
+                DescripcionPro.setText("");
+            }else
+                Toast.makeText(ModificarProducto.this, msj, Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Connection con = conexion.Conectar();
+            if (con != null){
+                try {
+                    PreparedStatement ps =con.prepareStatement(strings[0]);
+                    if (strings[1].equals("M")){
+                        ps.setString(1,Nombre);
+                        ps.setString(2,Categoria);
+                        ps.setString(3,SubCategoria);
+                        ps.setInt(4,Existencia);
+                        ps.setDouble(5,Precio);
+                        ps.setString(6,Descripcion);
+                        ps.setString(7,Codigo);
+                    }
+                    if(ps.executeUpdate() > 0){
+                        exito = true;
+                        if (strings[1].equals("M"))
+                            mensaje = "Registro modificado";
+                    }
+                    else {
+                        if (strings[1].equals("M")) ;
+                        mensaje = "Registro no modificado";
+                    }
+                } catch (Exception e) {
+                    mensaje = e.getMessage();
+                }
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    mensaje=e.getMessage();
+                }
+            }else {
+                mensaje = "Error al conectar con la base de datos";
+            }
+
+            return mensaje;
+        }
+    }//cierre de clase agregarProducto
 }
