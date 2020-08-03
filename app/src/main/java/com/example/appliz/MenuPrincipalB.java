@@ -13,6 +13,7 @@ public class MenuPrincipalB extends AppCompatActivity {
     ImageButton misDatos, menuProductos;
     Button btn_Cerrar;
     TextView tvBienvenido;
+
     String Nombre;
     int IdEmpleado;
 
@@ -30,6 +31,7 @@ public class MenuPrincipalB extends AppCompatActivity {
         IdEmpleado = extra.getInt("IdEmpleado");
         tvBienvenido.setText("BIENVENIDO: "+Nombre);
 
+
         misDatos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -44,6 +46,7 @@ public class MenuPrincipalB extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent productos = new Intent(getApplicationContext(), menu.class);
+                productos.putExtra("IdEmpleado",IdEmpleado);
                 startActivity(productos);
             }
         });//Termina OnClick de Productos
@@ -52,7 +55,9 @@ public class MenuPrincipalB extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent cerrar = new Intent(getApplicationContext(), MainActivity.class);
+                finish();
                 startActivity(cerrar);
+
             }
         });
     }//Finaliza onCreate

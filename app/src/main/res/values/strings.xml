@@ -8,5 +8,26 @@
         <item>Alimentos</item>
         <item>Abarrotes</item>
     </string-array>
+    <string-array name="SubCategoria">
+        <item> </item>
+    </string-array>
+    <string-array name="Alimentos">
+        <item>Quesos y lacteos</item>
+        <item>Carnes frías y embutidos</item>
+        <item>Bebidas y frituras</item>
+        <item>Reposteria</item>
+    </string-array>
+
+    <string-array name="Abarrotes">
+        <item>Hogar y limpieza</item>
+        <item>Salud y cuidado personal</item>
+        <item>Semillas y cereales</item>
+        <item>Productos diversos</item>
+    </string-array>
+
+    <string-array name="TipoEmpleado">
+        <item>Cajero</item>
+        <item>Almacen</item>
+    </string-array>
 
 </resources>

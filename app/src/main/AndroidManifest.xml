@@ -15,7 +15,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".CambioContrasenia"></activity>
+        <activity android:name=".ConsultarProductos"></activity>
+        <activity android:name=".Ventas" />
+        <activity android:name=".CambioContrasenia" />
         <activity android:name=".ModificarProducto" />
         <activity android:name=".AnimacionPrincipal">
             <intent-filter>

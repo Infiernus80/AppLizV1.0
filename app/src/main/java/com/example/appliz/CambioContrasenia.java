@@ -39,10 +39,18 @@ public class CambioContrasenia extends AppCompatActivity {
         CambioContra.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Nueva = Ncontraseña.getText().toString();
+        if (Ncontraseña.getText().toString().length() >= 6 && CNcontraseña.getText().toString().equals(Ncontraseña.getText().toString()) &&
+        !Ncontraseña.getText().toString().equals("")){
+            Nueva = Ncontraseña.getText().toString();
 
-                OperaABM opera = new OperaABM();
-                opera.execute("Update empleado set Constrasenia=? where Id_Empleado="+IdEmpleado, "M");
+            OperaABM opera = new OperaABM();
+            opera.execute("Update empleado set Constrasenia=? where Id_Empleado="+IdEmpleado, "M");
+        }else{
+            CNcontraseña.setError("El campo esta vacio o la contraseña no coincide");
+        }
+
+
+
 
             }
         });//Cierre del boton Cambio contraseña
@@ -64,16 +72,18 @@ public class CambioContrasenia extends AppCompatActivity {
             if (exito) {
                 //Toast.makeText(CambioContrasenia.this, msj, Toast.LENGTH_SHORT).show();
                 AlertDialog.Builder alerta = new AlertDialog.Builder(CambioContrasenia.this);
-                alerta.setMessage("Porfavor vuelve a iniciar sesión").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                alerta.setMessage("Por favor vuelve a iniciar sesión").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent regreso = new Intent(getApplicationContext(),MainActivity.class);
+                        finish();
                         startActivity(regreso);
                     }
                 });
                 AlertDialog titulo = alerta.create();
                 titulo.setTitle("La contraseña se modifico correctamente");
                 titulo.show();
+
             }
             else {
                 Toast.makeText(CambioContrasenia.this, msj, Toast.LENGTH_SHORT).show();

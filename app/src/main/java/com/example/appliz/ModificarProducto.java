@@ -7,39 +7,34 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import org.w3c.dom.Text;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ModificarProducto extends AppCompatActivity {
+public class ModificarProducto extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     ConexionMySql conexion;
-
+    Spinner sCategoria, sSubcategoria;
+    TextView CategoriaA,SubcategoriaA;
     EditText CodigoPro, NombrePro, PrecioPro,CategoriaPro,SubCategoriaPro, ExistenciaPro, DescripcionPro;
     Button btnConsultar,btnModificar,btnEscanear;
     String Codigo,Nombre,Categoria,SubCategoria,Descripcion;
     int Existencia;
     double Precio;
 
-/*   int pos = CategoriaSP.getSelectedItemPosition();
-
-    int opcion = 0;
-    String Alimentos[] = {"Seleccione un SubMenu", "Quesos y lacteos", "Carnes frias y embutidos", "Bebidas y frituras" +
-            "Reposteria"};
-    String Abarrotes[] = {"Seleccione un SubMenu", "Hogar y limpieza", "Salud y cuidado personal", "Semillas y cerelas"
-            + "Productos diversos"};
-
-    String Opcion[] = {"Selecciona una opción"};
-*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,17 +42,23 @@ public class ModificarProducto extends AppCompatActivity {
         CodigoPro = (EditText) findViewById(R.id.etModificarCo);
         NombrePro = (EditText) findViewById(R.id.NomberProMd);
         PrecioPro = (EditText) findViewById(R.id.PrecioProMD);
-        CategoriaPro = (EditText) findViewById(R.id.CategoriaPro);
-        SubCategoriaPro = (EditText) findViewById(R.id.SubCategoriaPro);
+        sCategoria = (Spinner) findViewById(R.id.spinnerCategoria);
+        sSubcategoria = (Spinner) findViewById(R.id.spinnerSubcategoria);
         DescripcionPro = (EditText) findViewById(R.id.DescripcionProMd);
         ExistenciaPro = (EditText) findViewById(R.id.ExistenciaProMd);
         btnConsultar = (Button) findViewById(R.id.btnConsultaPro);
         btnEscanear = (Button) findViewById(R.id.EscanearBtn);
         btnModificar = (Button) findViewById(R.id.btnModificarPro) ;
-
+        CategoriaA = (TextView) findViewById(R.id.CategoriaActual);
+        SubcategoriaA = (TextView) findViewById(R.id.SubcategoriaActual);
 
         conexion = new ConexionMySql();
-        //ComprobarCategoria();
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
+                (this,R.array.Categoria,R.layout.simple_spinner_text_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sCategoria.setAdapter(adapter);
+        sCategoria.setOnItemSelectedListener(ModificarProducto.this);
 
         btnEscanear.setOnClickListener(EscanearModi);
 
@@ -78,21 +79,36 @@ public class ModificarProducto extends AppCompatActivity {
         btnModificar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (CodigoPro.getText().toString().isEmpty()){
-                    Codigo= String.valueOf(-1);
-                }else{
-                    Codigo = CodigoPro.getText().toString();
-                }
-                Nombre = NombrePro.getText().toString();
-                Categoria = CategoriaPro.getText().toString();
-                SubCategoria = SubCategoriaPro.getText().toString();
-                Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
-                Precio = Double.parseDouble(PrecioPro.getText().toString());
-                Descripcion = DescripcionPro.getText().toString();
+                if (sCategoria.getSelectedItemPosition() == 0){
+                    if (CodigoPro.getText().toString().isEmpty()){
+                        Codigo= String.valueOf(-1);
+                    }else{
+                        Codigo = CodigoPro.getText().toString();
+                    }
+                    Nombre = NombrePro.getText().toString();
+                    Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                    Precio = Double.parseDouble(PrecioPro.getText().toString());
+                    Descripcion = DescripcionPro.getText().toString();
+                    Modificar modificar = new Modificar();
+                    modificar.execute("update producto set NombreProd=?,Existencia=?,Precio=?," +
+                            "Descripcion=? where Id_Producto=? ","M");
 
-                Modificar modificar = new Modificar();
-                modificar.execute("update producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
-                        "Descripcion=? where Id_Producto=? ","M");
+                }else{
+                    if (CodigoPro.getText().toString().isEmpty()){
+                        Codigo= String.valueOf(-1);
+                    }else{
+                        Codigo = CodigoPro.getText().toString();
+                    }
+                    Nombre = NombrePro.getText().toString();
+                    Categoria = sCategoria.getSelectedItem().toString();
+                    SubCategoria = sSubcategoria.getSelectedItem().toString();
+                    Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                    Precio = Double.parseDouble(PrecioPro.getText().toString());
+                    Descripcion = DescripcionPro.getText().toString();
+                    Modificar modificar = new Modificar();
+                    modificar.execute("update producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
+                            "Descripcion=? where Id_Producto=? ","M");
+                }
             }
         });
 
@@ -125,22 +141,20 @@ public class ModificarProducto extends AppCompatActivity {
         }
     };//Termina metodo del boton escanear
 
-    /*public void ComprobarCategoria() {
-        switch (pos) {
-            case 0:
-                SubMenuSP.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
-                        android.R.layout.simple_spinner_dropdown_item, Opcion));
-                break;
-            case 1:
-                SubMenuSP.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
-                        android.R.layout.simple_spinner_dropdown_item, Alimentos));
-                break;
-            case 2:
-                SubMenuSP.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
-                        android.R.layout.simple_spinner_dropdown_item, Abarrotes));
-                break;
-        }
-    }*/
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        int[] subcategorias = {R.array.SubCategoria,R.array.Alimentos,R.array.Abarrotes};
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
+                (this,subcategorias[position],R.layout.simple_spinner_text_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sSubcategoria.setAdapter(adapter);
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
 
     public class Consulta extends AsyncTask<String, String, String> {
         String mensaje = "";
@@ -156,9 +170,10 @@ public class ModificarProducto extends AppCompatActivity {
             if (exito) {
                 CodigoPro.setText(Codigo + "");
                 NombrePro.setText(Nombre);
+                CategoriaA.setText("Categoria actual: "+Categoria);
+                SubcategoriaA.setText("Subcategoria actual: "+SubCategoria);
+
                 PrecioPro.setText(Precio+"");
-                CategoriaPro.setText(Categoria+"");
-                SubCategoriaPro.setText(SubCategoria+"");
                 DescripcionPro.setText(Descripcion + "");
                 ExistenciaPro.setText(Existencia + "");
             } else {
@@ -211,8 +226,8 @@ public class ModificarProducto extends AppCompatActivity {
                 CodigoPro.setText("");
                 NombrePro.setText("");
                 PrecioPro.setText("");
-                CategoriaPro.setText("");
-                SubCategoriaPro.setText("");
+                CategoriaA.setText("Categoria actual: ");
+                SubcategoriaA.setText("Subcategoria actual: ");
                 ExistenciaPro.setText("");
                 DescripcionPro.setText("");
             }else
@@ -232,13 +247,22 @@ public class ModificarProducto extends AppCompatActivity {
                 try {
                     PreparedStatement ps =con.prepareStatement(strings[0]);
                     if (strings[1].equals("M")){
-                        ps.setString(1,Nombre);
-                        ps.setString(2,Categoria);
-                        ps.setString(3,SubCategoria);
-                        ps.setInt(4,Existencia);
-                        ps.setDouble(5,Precio);
-                        ps.setString(6,Descripcion);
-                        ps.setString(7,Codigo);
+                        if (sCategoria.getSelectedItemPosition() == 0){
+                            ps.setString(1,Nombre);
+                            ps.setInt(2,Existencia);
+                            ps.setDouble(3,Precio);
+                            ps.setString(4,Descripcion);
+                            ps.setString(5,Codigo);
+                        }else{
+                            ps.setString(1,Nombre);
+                            ps.setString(2,Categoria);
+                            ps.setString(3,SubCategoria);
+                            ps.setInt(4,Existencia);
+                            ps.setDouble(5,Precio);
+                            ps.setString(6,Descripcion);
+                            ps.setString(7,Codigo);
+                        }
+
                     }
                     if(ps.executeUpdate() > 0){
                         exito = true;

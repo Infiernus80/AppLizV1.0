@@ -4,8 +4,11 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -16,15 +19,20 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
-public class AgregarProducto extends AppCompatActivity {
+public class AgregarProducto extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     ConexionMySql conexion;
-    Button btn_Escanear, btn_Agregar;
-    EditText etCodigoAg, etNombreAg, etPrecioAg, etCategoriaAg,etSubcategoria, etExistenciaAg, etDescripcionAg;
-    String Codigo,Nombre,Categoria,SubCategoria,Descripcion;
-    int Existencia;
+    Button btn_Escanear, btn_Agregar, btnListo;
+    Spinner sCategoria, sSubcategoria,sProvedores;
+    EditText etCodigoAg, etNombreAg, etPrecioAg, etCategoriaAg, etSubcategoria, etExistenciaAg, etDescripcionAg;
+    String Codigo, Nombre, Categoria, SubCategoria, Descripcion;
+    int Existencia, pos;
     double Precio;
+
+    int IdEmpleado,idprove=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +44,21 @@ public class AgregarProducto extends AppCompatActivity {
         etCodigoAg = findViewById(R.id.etCodigoAg);
         etNombreAg = findViewById(R.id.etNombreAg);
         etPrecioAg = findViewById(R.id.etPrecioAg);
-        etCategoriaAg = findViewById(R.id.etCategoriaAg);
+        sCategoria = findViewById(R.id.sCategoria);
+        sProvedores = findViewById(R.id.sProvedores);
         etExistenciaAg = findViewById(R.id.etExistenciaAg);
         etDescripcionAg = findViewById(R.id.etDescripcionAg);
-        etSubcategoria = findViewById(R.id.etSubCategoriaAg);
+        sSubcategoria = findViewById(R.id.sSubcategoria);
         conexion = new ConexionMySql();
+
+        Bundle extra = getIntent().getExtras();
+        IdEmpleado = extra.getInt("IdEmpleado");
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
+                (this,R.array.Categoria,android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sCategoria.setAdapter(adapter);
+        sCategoria.setOnItemSelectedListener(AgregarProducto.this);
 
         btn_Escanear.setOnClickListener(mOnClickListener);
         btn_Agregar.setOnClickListener(new View.OnClickListener() {
@@ -49,14 +67,15 @@ public class AgregarProducto extends AppCompatActivity {
                 Codigo = etCodigoAg.getText().toString();
                 Nombre = etNombreAg.getText().toString();
                 Precio = Double.parseDouble(etPrecioAg.getText().toString());
-                Categoria = etCategoriaAg.getText().toString();
-                SubCategoria = etSubcategoria.getText().toString();
+                Categoria = sCategoria.getSelectedItem().toString();
+                SubCategoria = sSubcategoria.getSelectedItem().toString();
                 Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
                 Descripcion = etDescripcionAg.getText().toString();
 
 
                 Agregar agregar = new Agregar();
-                agregar.execute("insert into producto (Id_Producto,NombreProd,Categoria,SubCategoria,existencia,Precio,descripcion) values (?,?,?,?,?,?,?)","g");
+                agregar.execute("insert into producto (Id_Producto,NombreProd,Categoria," +
+                        "SubCategoria,existencia,Precio,descripcion,Id_Empleado,Id_Proveedor) values (?,?,?,?,?,?,?,?,?)", "g");
 
             }
         });
@@ -91,18 +110,20 @@ public class AgregarProducto extends AppCompatActivity {
         }
     };//Termina metodo del boton escanear
 
-    public class Agregar extends  AsyncTask<String,String,String>{
-        String mensaje="";
+
+
+
+    public class Agregar extends AsyncTask<String, String, String> {
+        String mensaje = "";
         boolean exito = false;
+
         @Override
         protected void onPostExecute(String msj) {
-            Toast.makeText(AgregarProducto.this, msj, Toast.LENGTH_SHORT).show();
-            if (exito){
+            Toast.makeText(AgregarProducto.this, msj, Toast.LENGTH_LONG).show();
+            if (exito) {
                 etCodigoAg.setText("");
                 etNombreAg.setText("");
                 etPrecioAg.setText("");
-                etCategoriaAg.setText("");
-                etSubcategoria.setText("");
                 etExistenciaAg.setText("");
                 etDescripcionAg.setText("");
             }
@@ -117,98 +138,58 @@ public class AgregarProducto extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
-            if (con != null){
+            if (con != null) {
                 try {
-                    PreparedStatement ps =con.prepareStatement(strings[0]);
-                    if (strings[1].equals("g")){
-                        ps.setString(1,Codigo);
-                        ps.setString(2,Nombre);
-                        ps.setString(3,Categoria);
-                        ps.setString(4,SubCategoria);
-                        ps.setInt(5,Existencia);
-                        ps.setDouble(6,Precio);
-                        ps.setString(7,Descripcion);
+                    PreparedStatement ps = con.prepareStatement(strings[0]);
+                    if (strings[1].equals("g")) {
+                        ps.setString(1, Codigo);
+                        ps.setString(2, Nombre);
+                        ps.setString(3, Categoria);
+                        ps.setString(4, SubCategoria);
+                        ps.setInt(5, Existencia);
+                        ps.setDouble(6, Precio);
+                        ps.setString(7, Descripcion);
+                        ps.setInt(8, IdEmpleado);
+                        ps.setInt(9, idprove);
                     }
-                    if(ps.executeUpdate() > 0){
+                    if (ps.executeUpdate() > 0) {
                         exito = true;
                         if (strings[1].equals("g"))
                             mensaje = "Registro guardado";
-                    }
-                    else {
+                    } else {
                         if (strings[1].equals("g")) ;
                         mensaje = "Registro no guardado";
                     }
                 } catch (Exception e) {
-                   mensaje = e.getMessage();
+                    mensaje = e.getMessage();
                 }
                 try {
                     con.close();
                 } catch (SQLException e) {
-                    mensaje=e.getMessage();
+                    mensaje = e.getMessage();
                 }
-            }else {
+            } else {
                 mensaje = "Error al conectar con la base de datos";
             }
 
             return mensaje;
         }
     }//cierre de clase agregarProducto
-/*
-    public class Consulta extends AsyncTask<String, String, String> {
-        String mensaje = "";
-        boolean exito = false;
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        int[] subcategorias = {R.array.SubCategoria,R.array.Alimentos,R.array.Abarrotes};
 
-        @Override
-        protected void onPostExecute(String msj) {
-            if (exito){
-                etCodigo.setText(codigo+"");
-                etNombre.setText(nombre);
-                etPuesto.setText(puesto);
-                etSueldo.setText(sueldo+"");
-                etUsuario.setText(usuario+"");
-                etContra.setText(pass+"");
-            }else{
-                Toast.makeText(MainActivity2.this, msj, Toast.LENGTH_SHORT).show();
-            }
-        }
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
+                (this,subcategorias[position],android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sSubcategoria.setAdapter(adapter);
+    }
 
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
 
-        @Override
-        protected String doInBackground(String... strings) {
-            Connection con = conexion.Conectar();
-            if(con!=null){
-                try {
-                    PreparedStatement ps = con.prepareStatement(strings[0]);
-                    ps.setString(1,nombre);
-                    ps.setInt(2,codigo);
+    }
 
-                    ResultSet rs = ps.executeQuery();
-                    if(rs.next()){
-                        exito=true;
-                        codigo = rs.getInt("codigo");
-                        nombre = rs.getString("nombre");
-                        puesto = rs.getString("puesto");
-                        sueldo = rs.getDouble("sueldo");
-                        usuario = rs.getString("usuario");
-                        pass = rs.getString("contrasenia");
-
-
-                    }else{
-
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }else{
-                mensaje = "Error a conectar a la base de datos";
-            }
-            return mensaje;
-        }
-    }//Cierre de la subclase consulta*/
 
 }//Fin de la clase

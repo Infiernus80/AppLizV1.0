@@ -17,11 +17,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MisDatos extends AppCompatActivity {
-    EditText etNombre, etApellido, etFechaNac, etTelefono, etCorreo, etContraseña, etSuledo;
+    EditText etNombre, etApellido,etApellidoM, etFechaNac, etTelefono, etCorreo, etContraseña, etSuledo;
     Button btnContraseña;
     String empleado;
     ConexionMySql conexion;
-    String Nombre,Apellido,FechaNac,Telefono,Correo,Contraseña;
+    String Nombre,Apellido,ApellidoM,FechaNac,Telefono,Correo,Contraseña;
     double Sueldo;
     int IdEmpleado;
 
@@ -37,6 +37,7 @@ public class MisDatos extends AppCompatActivity {
         etTelefono = findViewById(R.id.etTelefono);
         etCorreo = findViewById(R.id.etCorreo);
         etSuledo = findViewById(R.id.etSueldo);
+        etApellidoM = findViewById(R.id.etApellido2);
         btnContraseña = findViewById(R.id.btnModificarContraseña);
 
         conexion = new ConexionMySql();
@@ -74,6 +75,7 @@ public class MisDatos extends AppCompatActivity {
             if(exito){
                 etNombre.setText(Nombre);
                 etApellido.setText(Apellido);
+                etApellidoM.setText(ApellidoM);
                 etFechaNac.setText(FechaNac);
                 etTelefono.setText(Telefono);
                 etCorreo.setText(Correo);
@@ -99,6 +101,7 @@ public class MisDatos extends AppCompatActivity {
                         exito = true;
                         Nombre = rs.getString("Nombre");
                         Apellido = rs.getString("ApellidoP");
+                        ApellidoM = rs.getString("ApellidoM");
                         FechaNac = rs.getString("FechaNac");
                         Telefono = rs.getString("Telefono");
                         Correo = rs.getString("Correo");
