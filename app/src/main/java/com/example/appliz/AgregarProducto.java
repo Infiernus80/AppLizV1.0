@@ -95,7 +95,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
 
 
                     Agregar agregar = new Agregar();
-                    agregar.execute("insert into producto (Id_Producto,NombreProd,Categoria," +
+                    agregar.execute("insert into Producto (Id_Producto,NombreProd,Categoria," +
                             "SubCategoria,existencia,Precio,descripcion,Id_Empleado,Id_Proveedor) values (?,?,?,?,?,?,?,?,?)", "g");
                 }
 

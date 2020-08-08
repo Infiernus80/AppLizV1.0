@@ -44,7 +44,7 @@ public class CambioContrasenia extends AppCompatActivity {
             Nueva = Ncontraseña.getText().toString();
 
             OperaABM opera = new OperaABM();
-            opera.execute("Update empleado set Constrasenia=? where Id_Empleado="+IdEmpleado, "M");
+            opera.execute("Update Empleado set Constrasenia=? where Id_Empleado="+IdEmpleado, "M");
         }else{
             CNcontraseña.setError("El campo esta vacio o la contraseña no coincide");
         }
