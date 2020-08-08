@@ -1,10 +1,13 @@
 package com.example.appliz;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,16 +27,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class ModificarProducto extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     ConexionMySql conexion;
-    Spinner sCategoria, sSubcategoria;
-    TextView CategoriaA,SubcategoriaA;
+    Spinner sCategoria, sSubcategoria,sProveedor;
+    TextView CategoriaA,SubcategoriaA,txtProveedor;
     EditText CodigoPro, NombrePro, PrecioPro,CategoriaPro,SubCategoriaPro, ExistenciaPro, DescripcionPro;
     Button btnConsultar,btnModificar,btnEscanear;
-    String Codigo,Nombre,Categoria,SubCategoria,Descripcion;
+    String Codigo,Nombre,Categoria,SubCategoria,Descripcion,ProveedorA;
     int Existencia;
     double Precio;
+    ArrayList<String> Proveedor = new ArrayList<String>();
+    int idproveedor[] = new int[500];
+    int IdEmpleado,idselect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +57,36 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
         btnEscanear = (Button) findViewById(R.id.EscanearBtn);
         btnModificar = (Button) findViewById(R.id.btnModificarPro) ;
         CategoriaA = (TextView) findViewById(R.id.CategoriaActual);
+        sProveedor = (Spinner) findViewById(R.id.sProveedorMD);
+        txtProveedor = (TextView) findViewById(R.id.txtProveedor);
         SubcategoriaA = (TextView) findViewById(R.id.SubcategoriaActual);
 
         conexion = new ConexionMySql();
+        Bundle extra = getIntent().getExtras();
+        IdEmpleado = extra.getInt("IdEmpleado");
+
+        System.out.println(IdEmpleado);
+
+        //Se consulta todos los proveedores
+        Proveedor proveedor = new Proveedor();
+        proveedor.execute("SELECT * FROM Proveedor", "TODO");
+        Proveedor.add("Selecciona un proveedor");
+        //Se obtine el id del proveedor
+        sProveedor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                idselect = idproveedor[position];
+                System.out.println(idselect);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
-                (this,R.array.Categoria,R.layout.simple_spinner_text_item);
+                (this,R.array.Categoría,R.layout.simple_spinner_text_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sCategoria.setAdapter(adapter);
         sCategoria.setOnItemSelectedListener(ModificarProducto.this);
@@ -72,14 +103,18 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
                 }
                 Nombre = NombrePro.getText().toString();
                 Consulta consulta = new Consulta();
-                consulta.execute("select * from producto where Id_Producto=? or NombreProd=?");
+                consulta.execute("select p.*,pr.Nombre_Agente from Producto as p join Proveedor as pr" +
+                        " where p.Id_proveedor = pr.Id_Proveedor and (Id_Producto=? or NombreProd=?)","C");
+
             }
         });//cierre de boton consultar
 
         btnModificar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sCategoria.getSelectedItemPosition() == 0){
+                System.out.println(sCategoria.getSelectedItemPosition());
+                System.out.println(sProveedor.getSelectedItemPosition());
+                if (sCategoria.getSelectedItemPosition() == 0 && sProveedor.getSelectedItemPosition() ==0){
                     if (CodigoPro.getText().toString().isEmpty()){
                         Codigo= String.valueOf(-1);
                     }else{
@@ -90,10 +125,10 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
                     Precio = Double.parseDouble(PrecioPro.getText().toString());
                     Descripcion = DescripcionPro.getText().toString();
                     Modificar modificar = new Modificar();
-                    modificar.execute("update producto set NombreProd=?,Existencia=?,Precio=?," +
-                            "Descripcion=? where Id_Producto=? ","M");
+                    modificar.execute("update Producto set NombreProd=?,Existencia=?,Precio=?," +
+                            "Descripcion=?,Id_Empleado=?  where Id_Producto=? ","M");
 
-                }else{
+                }else if(sCategoria.getSelectedItemPosition() != 0 && sProveedor.getSelectedItemPosition()==0){
                     if (CodigoPro.getText().toString().isEmpty()){
                         Codigo= String.valueOf(-1);
                     }else{
@@ -106,8 +141,39 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
                     Precio = Double.parseDouble(PrecioPro.getText().toString());
                     Descripcion = DescripcionPro.getText().toString();
                     Modificar modificar = new Modificar();
-                    modificar.execute("update producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
-                            "Descripcion=? where Id_Producto=? ","M");
+                    modificar.execute("update Producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
+                            "Descripcion=?,Id_Empleado=? where Id_Producto=? ","M");
+                }else if (sProveedor.getSelectedItemPosition() != 0 && sCategoria.getSelectedItemPosition()==0){
+                    if (CodigoPro.getText().toString().isEmpty()){
+                        Codigo= String.valueOf(-1);
+                    }else{
+                        Codigo = CodigoPro.getText().toString();
+                    }
+                    Nombre = NombrePro.getText().toString();
+                    Categoria = sCategoria.getSelectedItem().toString();
+                    SubCategoria = sSubcategoria.getSelectedItem().toString();
+                    Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                    Precio = Double.parseDouble(PrecioPro.getText().toString());
+                    Descripcion = DescripcionPro.getText().toString();
+                    Modificar modificar = new Modificar();
+                    modificar.execute("update Producto set NombreProd=?,Existencia=?,Precio=?," +
+                            "Descripcion=?,Id_Empleado=?,Id_Proveedor=? where Id_Producto=? ","M");
+
+                }else if(sCategoria.getSelectedItemPosition() != 0 && sProveedor.getSelectedItemPosition() !=0){
+                    if (CodigoPro.getText().toString().isEmpty()){
+                        Codigo= String.valueOf(-1);
+                    }else{
+                        Codigo = CodigoPro.getText().toString();
+                    }
+                    Nombre = NombrePro.getText().toString();
+                    Categoria = sCategoria.getSelectedItem().toString();
+                    SubCategoria = sSubcategoria.getSelectedItem().toString();
+                    Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                    Precio = Double.parseDouble(PrecioPro.getText().toString());
+                    Descripcion = DescripcionPro.getText().toString();
+                    Modificar modificar = new Modificar();
+                    modificar.execute("update Producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
+                            "Descripcion=?,Id_Empleado=?,Id_Proveedor=? where Id_Producto=? ","M");
                 }
             }
         });
@@ -143,7 +209,7 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        int[] subcategorias = {R.array.SubCategoria,R.array.Alimentos,R.array.Abarrotes};
+        int[] subcategorias = {R.array.SubCategoría,R.array.Alimentos,R.array.Abarrotes};
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
                 (this,subcategorias[position],R.layout.simple_spinner_text_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -172,7 +238,7 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
                 NombrePro.setText(Nombre);
                 CategoriaA.setText("Categoria actual: "+Categoria);
                 SubcategoriaA.setText("Subcategoria actual: "+SubCategoria);
-
+                txtProveedor.setText("Proveedor actual: "+ProveedorA);
                 PrecioPro.setText(Precio+"");
                 DescripcionPro.setText(Descripcion + "");
                 ExistenciaPro.setText(Existencia + "");
@@ -188,8 +254,10 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
             if (con != null) {
                 try {
                     PreparedStatement ps = con.prepareStatement(strings[0]);
-                    ps.setString(1, Codigo);
-                    ps.setString(2, Nombre);
+                        ps.setString(1, Codigo);
+                        ps.setString(2, Nombre);
+
+
 
                     ResultSet rs = ps.executeQuery();
                     if (rs.next()) {
@@ -201,6 +269,8 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
                         SubCategoria =rs.getString("SubCategoria");
                         Existencia = rs.getInt("Existencia");
                         Descripcion = rs.getString("Descripcion");
+                        ProveedorA = rs.getString("Nombre_Agente");
+
 
                     } else {
 
@@ -218,6 +288,7 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
     public class Modificar extends  AsyncTask<String,String,String>{
         String mensaje="";
         boolean exito = false;
+        @RequiresApi(api = Build.VERSION_CODES.P)
         @Override
         protected void onPostExecute(String msj) {
 
@@ -227,6 +298,9 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
                 NombrePro.setText("");
                 PrecioPro.setText("");
                 CategoriaA.setText("Categoria actual: ");
+                sCategoria.setSelection(0);
+                sProveedor.setSelection(0);
+                txtProveedor.setText("");
                 SubcategoriaA.setText("Subcategoria actual: ");
                 ExistenciaPro.setText("");
                 DescripcionPro.setText("");
@@ -240,6 +314,7 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
 
         }
 
+        @SuppressLint("WrongThread")
         @Override
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
@@ -247,20 +322,40 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
                 try {
                     PreparedStatement ps =con.prepareStatement(strings[0]);
                     if (strings[1].equals("M")){
-                        if (sCategoria.getSelectedItemPosition() == 0){
+                        if (sCategoria.getSelectedItemPosition() == 0 && sProveedor.getSelectedItemPosition()==0){
                             ps.setString(1,Nombre);
                             ps.setInt(2,Existencia);
                             ps.setDouble(3,Precio);
                             ps.setString(4,Descripcion);
-                            ps.setString(5,Codigo);
-                        }else{
+                            ps.setInt(5, IdEmpleado);
+                            ps.setString(6,Codigo);
+                        }else if(sCategoria.getSelectedItemPosition() != 0 && sProveedor.getSelectedItemPosition()==0){
                             ps.setString(1,Nombre);
                             ps.setString(2,Categoria);
                             ps.setString(3,SubCategoria);
                             ps.setInt(4,Existencia);
                             ps.setDouble(5,Precio);
                             ps.setString(6,Descripcion);
+                            ps.setInt(7, IdEmpleado);
+                            ps.setString(8,Codigo);
+                        }else if(sProveedor.getSelectedItemPosition() != 0 && sCategoria.getSelectedItemPosition()==0){
+                            ps.setString(1,Nombre);
+                            ps.setInt(2,Existencia);
+                            ps.setDouble(3,Precio);
+                            ps.setString(4,Descripcion);
+                            ps.setInt(5, IdEmpleado);
+                            ps.setInt(6, idselect);
                             ps.setString(7,Codigo);
+                        }else if(sCategoria.getSelectedItemPosition() != 0 && sProveedor.getSelectedItemPosition() !=0){
+                            ps.setString(1,Nombre);
+                            ps.setString(2,Categoria);
+                            ps.setString(3,SubCategoria);
+                            ps.setInt(4,Existencia);
+                            ps.setDouble(5,Precio);
+                            ps.setString(6,Descripcion);
+                            ps.setInt(7, IdEmpleado);
+                            ps.setInt(8, idselect);
+                            ps.setString(9,Codigo);
                         }
 
                     }
@@ -288,4 +383,70 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
             return mensaje;
         }
     }//cierre de clase agregarProducto
+
+    //Metodo para llenarspinner
+    public void llenarspinner(ArrayList listaDatos) {
+        ArrayAdapter adaptador = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, listaDatos);
+        sProveedor.setAdapter(adaptador);
+
+    }//Cirre para llenar spinner
+
+    //Consultar proveedores
+    public class Proveedor extends AsyncTask<String, String, String> {
+        boolean exito = false;
+        String mensaje;
+        int i=1;
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onPostExecute(String msj) {
+            if (exito) {
+                llenarspinner(Proveedor);
+            } else {
+                Toast.makeText(ModificarProducto.this, msj, Toast.LENGTH_SHORT).show();
+            }
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Connection con = conexion.Conectar();
+            if (con != null) {
+                try {
+                    PreparedStatement ps = con.prepareStatement(strings[0]);
+                    ResultSet rs = ps.executeQuery();
+
+                    if (rs.next()) {
+                        exito = true;
+                        do {
+
+                            idproveedor[i] =rs.getInt("Id_proveedor");
+                            Proveedor.add("Proveedor: " + rs.getString("Nombre_Agente"));
+                            i++;
+                        } while (rs.next());
+
+                    } else {
+                        mensaje = "No hay proveedores";
+                    }
+
+                } catch (SQLException e) {
+                    mensaje = e.getMessage();
+                }
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    mensaje = e.getMessage();
+                }
+            } else {
+                mensaje = "Error al conectar a la base de datos";
+            }
+
+            return mensaje;
+        }
+    }//Cierre Proveedor
 }

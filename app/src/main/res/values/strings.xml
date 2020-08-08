@@ -3,19 +3,19 @@
     <string name="Txt_Correo">Ingresa tu correo</string>
     <string name="Txt_Contraseña">Ingresa tu contraseña</string>
     <string name="Btn_Ingresar">Iniciar sesión</string>
-    <string-array name="Categoria">
+    <string-array name="Categoría">
         <item>Selecciona una categoría</item>
         <item>Alimentos</item>
         <item>Abarrotes</item>
     </string-array>
-    <string-array name="SubCategoria">
+    <string-array name="SubCategoría">
         <item> </item>
     </string-array>
     <string-array name="Alimentos">
         <item>Quesos y lacteos</item>
         <item>Carnes frías y embutidos</item>
         <item>Bebidas y frituras</item>
-        <item>Reposteria</item>
+        <item>Repostería</item>
     </string-array>
 
     <string-array name="Abarrotes">
@@ -27,7 +27,7 @@
 
     <string-array name="TipoEmpleado">
         <item>Cajero</item>
-        <item>Almacen</item>
+        <item>Bodega</item>
     </string-array>
 
 </resources>

@@ -15,7 +15,7 @@
         android:layout_marginLeft="32dp"
         android:layout_marginTop="32dp"
         android:ems="10"
-        android:hint="Codigo"
+        android:hint="Código"
         android:inputType="number"
         android:textColor="#000000"
         android:textColorHint="#000000"
@@ -53,6 +53,7 @@
         android:ems="10"
         android:hint="Precio"
         android:inputType="number"
+        android:text="0.0"
         android:textColor="#000000"
         android:textColorHint="#000000"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,12 +67,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
         android:ems="10"
         android:hint="Existencia"
         android:inputType="number"
+        android:text="0"
         android:textColor="#000000"
         android:textColorHint="#000000"
         app:layout_constraintEnd_toEndOf="parent"
@@ -138,25 +140,11 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        android:background="#3A3A3A"
+        android:background="@drawable/bg_spinner"
+        android:popupBackground="@drawable/fondospinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etNombreAg" />
-
-    <Spinner
-        android:id="@+id/sSubcategoria"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
-        android:background="#494949"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sCategoria" />
 
     <Spinner
         android:id="@+id/sProvedores"
@@ -168,8 +156,26 @@
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
         android:background="@drawable/bg_spinner"
+        android:popupBackground="@drawable/fondospinner"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etDescripcionAg" />
+
+    <Spinner
+        android:id="@+id/sSubcategoria"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:background="@drawable/bg_spinner"
+        android:popupBackground="@drawable/fondospinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sCategoria" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

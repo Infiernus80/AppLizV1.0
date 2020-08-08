@@ -1,11 +1,14 @@
 package com.example.appliz;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,14 +27,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ConsultarProductos extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class ConsultarProductos extends AppCompatActivity{
     ConexionMySql conexion;
     EditText BusquedaNC;
     Spinner sCategoria,sSubcategoria;
     ListView lv_Productos;
     ArrayList datos;
-    Button Busqueda,btnBuscar;
+    String[] idprod = new String[500];
+    String[] nombrepro = new String[500];
+    int[] precio,existencia;
+    Button Busqueda,btnBuscar,limpiar;
     String ProductoBus;
+    String nombre;
+    int precioT,existenciaT;
 
 
     @Override
@@ -39,32 +47,49 @@ public class ConsultarProductos extends AppCompatActivity implements AdapterView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_consultar_productos);
         BusquedaNC = (EditText) findViewById(R.id.BusquedaNC);
-        sCategoria = (Spinner) findViewById(R.id.CategoriaB);
-        sSubcategoria= (Spinner) findViewById(R.id.SubcategoriaB);
         lv_Productos = (ListView) findViewById(R.id.lv_Productos);
         Busqueda = (Button) findViewById(R.id.btnEscanearB);
         btnBuscar = (Button) findViewById(R.id.btnBuscar);
+        limpiar = (Button) findViewById(R.id.reset);
+        ConsultarPro consultarPro = new ConsultarPro();
+        consultarPro.execute("select * from Producto","todo");
+
+        precio = new int[500];
+        existencia = new int[500];
 
 
         conexion = new ConexionMySql();
         datos = new ArrayList();
-
-        Busqueda.setOnClickListener(EscanearModi);
-        ConsultarPro consultarPro = new ConsultarPro();
-        consultarPro.execute("select NombreProd from producto","todo");
-        btnBuscar.setOnClickListener(new View.OnClickListener() {
+        lv_Productos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println(idprod[position]);
+                precioT = precio[position];
+                existenciaT = existencia[position];
+                nombre =nombrepro[position];
+                ventanaEmergente();
             }
         });
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
-                (this, R.array.Categoria,R.layout.simple_spinner_text_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sCategoria.setAdapter(adapter);
-        sCategoria.setOnItemSelectedListener(ConsultarProductos.this);
+        Busqueda.setOnClickListener(EscanearModi);
 
+        btnBuscar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ProductoBus = BusquedaNC.getText().toString();
+                System.out.println(ProductoBus);
+                ConsultarPro consultarPro = new ConsultarPro();
+                consultarPro.execute("select * from Producto where NombreProd=? or Id_Producto=?","C");
+            }
+        });
+        limpiar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ConsultarPro consultarPro = new ConsultarPro();
+                consultarPro.execute("select * from Producto","todo");
+                BusquedaNC.setText("");
+            }
+        });
 
     }
     //Metodo para escanear
@@ -76,7 +101,7 @@ public class ConsultarProductos extends AppCompatActivity implements AdapterView
             if (result.getContents() != null) {
                 BusquedaNC.setText(result.getContents());
             } else {
-                Toast.makeText(this, "Error al escanear el codigo", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error al escanear el código", Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -94,20 +119,6 @@ public class ConsultarProductos extends AppCompatActivity implements AdapterView
         }
     };//Termina metodo del boton escanear
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        int[] subcategorias = {R.array.SubCategoria, R.array.Alimentos, R.array.Abarrotes};
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
-                (this, subcategorias[position], R.layout.simple_spinner_text_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sSubcategoria.setAdapter(adapter);
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-
     public void llenarLista(ArrayList listaDatos) {
         ArrayAdapter adaptador = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, listaDatos);
         lv_Productos.setAdapter(adaptador);
@@ -116,6 +127,7 @@ public class ConsultarProductos extends AppCompatActivity implements AdapterView
     public  class ConsultarPro extends AsyncTask<String,String,String> {
         boolean exito = false;
         String mensaje;
+        int i;
 
         @Override
         protected void onPreExecute() {
@@ -129,7 +141,6 @@ public class ConsultarProductos extends AppCompatActivity implements AdapterView
             }else{
                 datos.clear();
                 llenarLista(datos);
-
                 Toast.makeText(ConsultarProductos.this, msj, Toast.LENGTH_SHORT).show();
             }
 
@@ -141,17 +152,37 @@ public class ConsultarProductos extends AppCompatActivity implements AdapterView
             if (con != null){
                 try {
                     PreparedStatement ps =con.prepareStatement(strings[0]);
-                   /* if (strings[1].equals("nom")){
-                        ps.setString(1,nombreBuscar);
-                    }*/
+                    if (strings[1].equals("C")){
+                        ps.setString(1,ProductoBus);
+                        ps.setString(2,ProductoBus);
+                    }
+
+
                     ResultSet rs = ps.executeQuery();
 
                     if(rs.next()){
                         datos.clear();
+                        for(int l=0;l<idprod.length;l++){
+                            idprod[l]=null;
+                        }
+                        for(int l=0;l<nombrepro.length;l++){
+                            nombrepro[l]=null;
+                        }
+                        for(int l=0;l<precio.length;l++){
+                            precio[l]=0;
+                        }
+                        for(int l=0;l<existencia.length;l++){
+                            existencia[l]=0;
+                        }
                         exito=true;
                         do {
+                            idprod[i] = rs.getString("Id_Producto");
+                            nombrepro[i] = rs.getString("NombreProd");
+                            precio[i] = rs.getInt("Precio");
+                            existencia[i] = rs.getInt("Existencia");
                             datos.add("Nombre del producto: "+rs.getString("NombreProd"));
 
+                        i++;
                         }while (rs.next());
 
                     }else{
@@ -159,12 +190,12 @@ public class ConsultarProductos extends AppCompatActivity implements AdapterView
                     }
 
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    mensaje = e.getMessage();
                 }
                 try {
                     con.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    mensaje = e.getMessage();
                 }
             }else{
                 mensaje= "Error al conectar a la base de datos";
@@ -173,4 +204,26 @@ public class ConsultarProductos extends AppCompatActivity implements AdapterView
             return mensaje;
         }
     }//Cierre ABM
-}
+
+    public void ventanaEmergente(){
+        AlertDialog.Builder alerta = new AlertDialog.Builder(ConsultarProductos.this);
+        alerta.setMessage("Nombre del producto: "+nombre +
+                "\nPrecio del producto: $"+ Html.fromHtml("<font color='#31B404'>"+precioT+"</font>") +
+                "\nExistencia: "+existenciaT+" productos")
+                .setCancelable(false)
+                .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog titulo = alerta.create();
+        titulo.setTitle("Producto");
+        titulo.show();
+
+
+    }
+
+
+
+}//fin de la clase

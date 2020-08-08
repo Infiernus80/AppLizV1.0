@@ -7,10 +7,10 @@ import java.sql.DriverManager;
 
 public class ConexionMySql {
     //10.0.2.2 ip para trabajar de manera local con android
-    private String ip = "192.168.100.39:3307"; // Ip de mi mi maquina o del servidor
-    private String bd = "plataforma_ventas";
-    private String usuarioBD = "android";
-    private String passBD = "android";
+    private String ip = "204.44.192.72:3306"; // Ip de mi mi maquina o del servidor
+    private String bd = "creme498_plataforma_ventas";
+    private String usuarioBD = "creme498_admin";
+    private String passBD = "S@ndoval29";
     private String url = "jdbc:mysql://" + ip + "/" + bd;
 
 

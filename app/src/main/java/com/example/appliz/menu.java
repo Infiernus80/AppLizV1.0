@@ -40,6 +40,7 @@ public class menu extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent modificar = new Intent(getApplicationContext(),ModificarProducto.class);
+                modificar.putExtra("IdEmpleado",IdEmpleado);
                 startActivity(modificar);
             }
         });
@@ -48,6 +49,7 @@ public class menu extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent consultar = new Intent(getApplicationContext(),ConsultarProductos.class);
+                consultar.putExtra("IdEmpleado",IdEmpleado);
                 startActivity(consultar);
             }
         });

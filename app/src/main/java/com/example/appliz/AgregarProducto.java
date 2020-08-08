@@ -25,14 +25,15 @@ import java.util.ArrayList;
 
 public class AgregarProducto extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     ConexionMySql conexion;
-    Button btn_Escanear, btn_Agregar, btnListo;
-    Spinner sCategoria, sSubcategoria,sProvedores;
-    EditText etCodigoAg, etNombreAg, etPrecioAg, etCategoriaAg, etSubcategoria, etExistenciaAg, etDescripcionAg;
+    Button btn_Escanear, btn_Agregar;
+    Spinner sCategoria, sSubcategoria, sProvedores;
+    EditText etCodigoAg, etNombreAg, etPrecioAg,etExistenciaAg, etDescripcionAg;
     String Codigo, Nombre, Categoria, SubCategoria, Descripcion;
-    int Existencia, pos;
+    int Existencia,pos;
     double Precio;
-
-    int IdEmpleado,idprove=1;
+    ArrayList<String> Proveedor = new ArrayList<String>();
+    int idproveedor[] = new int[500];
+    int IdEmpleado,idselect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,32 +51,53 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
         etDescripcionAg = findViewById(R.id.etDescripcionAg);
         sSubcategoria = findViewById(R.id.sSubcategoria);
         conexion = new ConexionMySql();
-
+        //Se obtine el ID del empleado
         Bundle extra = getIntent().getExtras();
         IdEmpleado = extra.getInt("IdEmpleado");
+        sProvedores.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                idselect = idproveedor[position];
+                System.out.println(idselect);
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        //Se consulta todos los proveedores
+        Proveedor proveedor = new Proveedor();
+        proveedor.execute("SELECT * FROM PROVEEDOR", "TODO");
+        Proveedor.add("Selecciona un proveedor");
+        pos = sProvedores.getSelectedItemPosition();
+
+        //Metodo para spinner enlazados(Categoria)
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
-                (this,R.array.Categoria,android.R.layout.simple_spinner_item);
+                (this, R.array.Categoría, R.layout.simple_spinner_text_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sCategoria.setAdapter(adapter);
         sCategoria.setOnItemSelectedListener(AgregarProducto.this);
 
         btn_Escanear.setOnClickListener(mOnClickListener);
+        //Metodo Agregar producto
         btn_Agregar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Codigo = etCodigoAg.getText().toString();
-                Nombre = etNombreAg.getText().toString();
-                Precio = Double.parseDouble(etPrecioAg.getText().toString());
-                Categoria = sCategoria.getSelectedItem().toString();
-                SubCategoria = sSubcategoria.getSelectedItem().toString();
-                Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
-                Descripcion = etDescripcionAg.getText().toString();
+                if (validar()){
+                    Codigo = etCodigoAg.getText().toString();
+                    Nombre = etNombreAg.getText().toString();
+                    Precio = Double.parseDouble(etPrecioAg.getText().toString());
+                    Categoria = sCategoria.getSelectedItem().toString();
+                    SubCategoria = sSubcategoria.getSelectedItem().toString();
+                    Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
+                    Descripcion = etDescripcionAg.getText().toString();
 
 
-                Agregar agregar = new Agregar();
-                agregar.execute("insert into producto (Id_Producto,NombreProd,Categoria," +
-                        "SubCategoria,existencia,Precio,descripcion,Id_Empleado,Id_Proveedor) values (?,?,?,?,?,?,?,?,?)", "g");
+                    Agregar agregar = new Agregar();
+                    agregar.execute("insert into producto (Id_Producto,NombreProd,Categoria," +
+                            "SubCategoria,existencia,Precio,descripcion,Id_Empleado,Id_Proveedor) values (?,?,?,?,?,?,?,?,?)", "g");
+                }
 
             }
         });
@@ -110,9 +132,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
         }
     };//Termina metodo del boton escanear
 
-
-
-
+    //Metodo para agregar productos
     public class Agregar extends AsyncTask<String, String, String> {
         String mensaje = "";
         boolean exito = false;
@@ -124,6 +144,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
                 etCodigoAg.setText("");
                 etNombreAg.setText("");
                 etPrecioAg.setText("");
+                sCategoria.setSelection(0);
                 etExistenciaAg.setText("");
                 etDescripcionAg.setText("");
             }
@@ -150,7 +171,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
                         ps.setDouble(6, Precio);
                         ps.setString(7, Descripcion);
                         ps.setInt(8, IdEmpleado);
-                        ps.setInt(9, idprove);
+                        ps.setInt(9, idselect);
                     }
                     if (ps.executeUpdate() > 0) {
                         exito = true;
@@ -176,12 +197,80 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
         }
     }//cierre de clase agregarProducto
 
+    //Metodo para llenarspinner
+    public void llenarspinner(ArrayList listaDatos) {
+        ArrayAdapter adaptador = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, listaDatos);
+        sProvedores.setAdapter(adaptador);
+        pos = sProvedores.getSelectedItemPosition();
+
+    }//Cirre para llenar spinner
+
+    //Consultar proveedores
+    public class Proveedor extends AsyncTask<String, String, String> {
+        boolean exito = false;
+        String mensaje;
+        int i=1;
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onPostExecute(String msj) {
+            if (exito) {
+                llenarspinner(Proveedor);
+            } else {
+                Toast.makeText(AgregarProducto.this, msj, Toast.LENGTH_SHORT).show();
+            }
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Connection con = conexion.Conectar();
+            if (con != null) {
+                try {
+                    PreparedStatement ps = con.prepareStatement(strings[0]);
+                    ResultSet rs = ps.executeQuery();
+
+                    if (rs.next()) {
+                        exito = true;
+                        do {
+
+                            idproveedor[i] =rs.getInt("Id_proveedor");
+                            Proveedor.add("Proveedor: " + rs.getString("Nombre_Agente"));
+                        i++;
+                        } while (rs.next());
+
+                    } else {
+                        mensaje = "No hay proveedores";
+                    }
+
+                } catch (SQLException e) {
+                    mensaje = e.getMessage();
+                }
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    mensaje = e.getMessage();
+                }
+            } else {
+                mensaje = "Error al conectar a la base de datos";
+            }
+
+            return mensaje;
+        }
+    }//Cierre Proveedor
+
+    //Metodo para Spinner enlazados (Subcategoria)
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        int[] subcategorias = {R.array.SubCategoria,R.array.Alimentos,R.array.Abarrotes};
+        int[] subcategorias = {R.array.SubCategoría, R.array.Alimentos, R.array.Abarrotes};
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource
-                (this,subcategorias[position],android.R.layout.simple_spinner_item);
+                (this, subcategorias[position], R.layout.simple_spinner_text_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sSubcategoria.setAdapter(adapter);
     }
@@ -189,6 +278,42 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    public boolean validar() {
+        boolean retorno = true;
+        String Codigo = etCodigoAg.getText().toString();
+        String Nombre = etNombreAg.getText().toString();
+        Double Precio = Double.parseDouble(etPrecioAg.getText().toString());
+        String Categoria = sCategoria.getSelectedItem().toString();
+        String SubCategoria = sSubcategoria.getSelectedItem().toString();
+        int Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
+
+
+
+        if (Codigo.isEmpty()) {
+            etCodigoAg.setError("Por favor ingresa un codigo");
+            retorno = false;
+        }
+        if (Nombre.isEmpty()) {
+            etNombreAg.setError("Por favor ingresa el nombre del producto");
+            retorno = false;
+        }if (Precio <= 0){
+            etPrecioAg.setError("Por favor ingresa un valor");
+            retorno = false;
+        }if (Categoria.isEmpty()) {
+            Toast.makeText(this, "Por favor selecciona una categoría", Toast.LENGTH_SHORT).show();
+            retorno = false;
+        }if (SubCategoria.isEmpty()) {
+            Toast.makeText(this, "Por favor selecciona una subcategoría", Toast.LENGTH_SHORT).show();
+            retorno = false;
+        }if (Existencia <= 0 ) {
+            etExistenciaAg.setError("Por favor ingresa un valor");
+            retorno = false;
+        }
+        //Falta validacion de proveedor
+
+        return retorno;
     }
 
 

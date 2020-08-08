@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     ConexionMySql conexion;
     String nombre;
     int pos;
+    final DialogoCarga carga = new DialogoCarga(MainActivity.this);
 
 
     @Override
@@ -54,13 +56,23 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 inicioSesion sesion = new inicioSesion();
                 pos = sTipoEmpleado.getSelectedItemPosition();
-                //System.out.println(pos);
-                if (pos == 0)
-                    sesion.execute("select * from empleado where Correo=? and Constrasenia=? and Tipo='Cajero' or Tipo=" +
-                            "'ADMIN'");
-                else if (pos == 1)
-                    sesion.execute("select * from empleado where Correo=? and Constrasenia=? and" +
-                            " Tipo='Almacen' or Tipo='ADMIN'");
+                carga.starLoading();
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        carga.dismissDialog();
+                    }
+                },4000);
+                if (validar()){
+                    if (pos == 0)
+                        sesion.execute("select * from Empleado where Correo=? and Constrasenia=? and Tipo='Cajero' or Tipo=" +
+                                "'ADMIN'");
+                    else if (pos == 1)
+                        sesion.execute("select * from Empleado where Correo=? and Constrasenia=? and" +
+                                " Tipo='Bodega' or Tipo='ADMIN'");
+                }
+
             }
         });//Termina onClick iniciar
     }//Termina onCreate
@@ -75,13 +87,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            barInicio.setVisibility(View.VISIBLE);
+           // barInicio.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(String msj) {
 
-            barInicio.setVisibility(View.GONE);
+
 
             if (exito) {
                 if (pos == 0) {
@@ -130,13 +142,13 @@ public class MainActivity extends AppCompatActivity {
 
 
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    mensaje = e.getMessage();
                 }
                 //Cierre de sesión
                 try {
                     con.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    mensaje = e.getMessage();
                 }
             } else {
                 mensaje = "Error al conectar a la base de datos";
@@ -146,4 +158,23 @@ public class MainActivity extends AppCompatActivity {
             return mensaje;
         }
     }//Termina metodo Iniciar Sesion
+
+    //Metodo validar
+    public boolean validar() {
+        boolean retorno = true;
+        String CorreoU = Correo.getText().toString();
+        String ContraseñaU = Contraseña.getText().toString();
+
+        if (CorreoU.isEmpty()) {
+            Correo.setError("Por favor ingresa un correo");
+            retorno = false;
+        }
+        if (ContraseñaU.isEmpty()) {
+            Contraseña.setError("Por favor ingresa una contraseña");
+            retorno = false;
+        }
+        //Falta validacion de proveedor
+
+        return retorno;
+    }//fin de metodo validar
 }//Termina class ManinActivity
