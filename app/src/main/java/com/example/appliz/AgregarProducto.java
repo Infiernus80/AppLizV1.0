@@ -68,7 +68,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
         });
         //Se consulta todos los proveedores
         Proveedor proveedor = new Proveedor();
-        proveedor.execute("SELECT * FROM PROVEEDOR", "TODO");
+        proveedor.execute("select * from Proveedor", "TODO");
         Proveedor.add("Selecciona un proveedor");
         pos = sProvedores.getSelectedItemPosition();
 

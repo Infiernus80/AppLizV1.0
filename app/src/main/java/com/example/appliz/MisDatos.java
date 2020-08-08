@@ -46,7 +46,7 @@ public class MisDatos extends AppCompatActivity {
         empleado = extra.getString("Empleado");
         IdEmpleado = extra.getInt("IdEmpleado");
         OperaABM datos = new OperaABM();
-        datos.execute("select * from empleado where nombre=?");
+        datos.execute("select * from Empleado where nombre=?");
 
         btnContraseña.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,12 +109,12 @@ public class MisDatos extends AppCompatActivity {
                     }
 
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    mensaje = e.getMessage();
                 }
                 try {
                     con.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    mensaje = e.getMessage();
                 }
             }else{
                 mensaje= "Error al conectar a la base de datos";
