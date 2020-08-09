@@ -25,7 +25,6 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     EditText Correo, Contraseña;
     Button Iniciar;
-    ProgressBar barInicio;
     Spinner sTipoEmpleado;
     ConexionMySql conexion;
     String nombre;
@@ -41,9 +40,6 @@ public class MainActivity extends AppCompatActivity {
         sTipoEmpleado = findViewById(R.id.sTipoEmpleado);
         Contraseña = findViewById(R.id.Contraseña);
         Iniciar = findViewById(R.id.btn_Iniciar);
-        barInicio = findViewById(R.id.barInicio);
-
-        barInicio.setVisibility(View.GONE);
 
         conexion = new ConexionMySql();
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource

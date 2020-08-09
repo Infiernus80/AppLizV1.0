@@ -273,10 +273,15 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
 
 
                     } else {
-
+                        mensaje = "No existe el producto en la base de datos";
                     }
+                }  catch (SQLException e) {
+                    mensaje = e.getMessage();
+                }
+                try {
+                    con.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    mensaje = e.getMessage();
                 }
             } else {
                 mensaje = "Error a conectar a la base de datos";
