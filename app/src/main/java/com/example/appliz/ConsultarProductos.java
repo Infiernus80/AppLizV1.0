@@ -138,6 +138,9 @@ public class ConsultarProductos extends AppCompatActivity{
         protected void onPostExecute(String msj) {
             if(exito){
                 llenarLista(datos);
+                for(int l=0;l<idprod.length;l++){
+                    System.out.println(idprod[l]);
+                }
             }else{
                 datos.clear();
                 llenarLista(datos);

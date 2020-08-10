@@ -19,7 +19,7 @@ public class DialogoCarga {
 
         LayoutInflater inflater = activity.getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.custom_proggresbar,null));
-        builder.setCancelable(true);
+        builder.setCancelable(false);
 
         dialog = builder.create();
         dialog.show();
