@@ -27,7 +27,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class Ventas extends AppCompatActivity {
     ListView listaPro;
@@ -40,8 +43,12 @@ public class Ventas extends AppCompatActivity {
     TextView PrecioPro;
     double CambioTotal;
     double total = 0.0;
+    int i=0;
     String NombreProd[] = new String[500];
     double PrecioProd[] = new double[500];
+    String date = String.valueOf(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
+    String fecha = String.valueOf(date);
+
 
 
     @Override
@@ -55,6 +62,7 @@ public class Ventas extends AppCompatActivity {
         Pagar = (Button) findViewById(R.id.btnPagar);
         PrecioPro = (TextView) findViewById(R.id.txtTotal);
         Escanear.setOnClickListener(EscanearBuscar);
+        System.out.println(date);
 
 
 
@@ -100,6 +108,9 @@ public class Ventas extends AppCompatActivity {
                     }
                     PrecioPro.setText("Total: $0.0");
                     DialogoPersonalizado();
+                    Venta venta = new Venta();
+                    venta.execute("insert into Venta (MetodoPago,Tipo,Total,FechaVenta,Id_Empleado,Id_Cliente)" +
+                            "values('Efectivo','Presencial',?,'2020-08-10',1,0)");
                 }
             }
         });
@@ -141,10 +152,12 @@ public class Ventas extends AppCompatActivity {
             }
         }
     };//Termina metodo del boton escanear
+
+    //Inicia metodo VentaProductos
     public  class VentaProductos extends AsyncTask<String,String,String> {
         boolean exito = false;
         String mensaje;
-        int i=0;
+
 
         @Override
         protected void onPreExecute() {
@@ -215,7 +228,7 @@ public class Ventas extends AppCompatActivity {
     boolean validar(){
         boolean retorno=true;
         double c1 =Double.parseDouble(Cambio.getText().toString());
-       if (c1 == 0.0){
+       if (c1== 0.0){
            Cambio.setError("Ingresa el pago del cliente");
            retorno = false;
        }
@@ -240,6 +253,62 @@ public class Ventas extends AppCompatActivity {
             }
         });
     }
+
+    public  class Venta extends AsyncTask<String,String,String> {
+        boolean exito = false;
+        String mensaje;
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onPostExecute(String msj) {
+            if(exito){
+                Toast.makeText(Ventas.this, msj, Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(Ventas.this, msj, Toast.LENGTH_LONG).show();
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Connection con = conexion.Conectar();
+            if (con != null){
+                try {
+                    PreparedStatement ps =con.prepareStatement(strings[0]);
+
+                    ps.setDouble(1,total);
+                    //ps.setString(2,fecha);
+
+
+
+
+                    ResultSet rs = ps.executeQuery();
+
+                    if(rs.next()){
+                        mensaje = "Venta exitosa";
+                    }else{
+                        mensaje="Venta no exitosa";
+                    }
+
+                } catch (SQLException e) {
+                    mensaje = e.getMessage();
+                }
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    mensaje = e.getMessage();
+                }
+            }else{
+                mensaje= "Error al conectar a la base de datos";
+            }
+
+            return mensaje;
+        }
+    }//Cierre Venta
 
 
 
