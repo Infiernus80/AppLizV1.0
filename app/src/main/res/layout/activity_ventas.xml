@@ -37,7 +37,7 @@
     <ListView
         android:id="@+id/lv_productos"
         android:layout_width="wrap_content"
-        android:layout_height="460dp"
+        android:layout_height="322dp"
         android:layout_below="@+id/btnEscanearVentas"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"

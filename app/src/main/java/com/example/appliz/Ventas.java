@@ -110,7 +110,7 @@ public class Ventas extends AppCompatActivity {
                     DialogoPersonalizado();
                     Venta venta = new Venta();
                     venta.execute("insert into Venta (MetodoPago,Tipo,Total,FechaVenta,Id_Empleado,Id_Cliente)" +
-                            "values('Efectivo','Presencial',?,'2020-08-10',1,0)");
+                            "values('Efectivo','Presencial',?,?,1,0)");
                 }
             }
         });
@@ -244,7 +244,7 @@ public class Ventas extends AppCompatActivity {
         final AlertDialog dialog = builder.create();
         dialog.show();
         TextView txtcambio = view.findViewById(R.id.TXTCAMBIO);
-        txtcambio.setText(String.valueOf(CambioTotal));
+        txtcambio.setText("$"+String.valueOf(CambioTotal));
         Button btnAceptar = view.findViewById(R.id.btnAceptar);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,7 +281,7 @@ public class Ventas extends AppCompatActivity {
                     PreparedStatement ps =con.prepareStatement(strings[0]);
 
                     ps.setDouble(1,total);
-                    //ps.setString(2,fecha);
+                    ps.setDate(2, java.sql.Date.valueOf(fecha));
 
 
 
