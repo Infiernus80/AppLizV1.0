@@ -34,21 +34,20 @@ public class Ventas extends AppCompatActivity {
     ListView listaPro;
     ArrayList<String> productos = new ArrayList<>();
     ArrayAdapter adaptador;
-    Button Consultar,Escanear,Pagar;
+    Button Eliminar, Escanear, Pagar;
     EditText Cambio;
     ConexionMySql conexion;
     String productoBuscar;
     TextView PrecioPro;
-    double CambioTotal;
-    double total = 0.0;
-    int i=0,idVentaGeneral=0;
-    String ventaP="p01";
+    double CambioTotal, total = 0.0;
+    int i = 0, idVentaGeneral = 0, iCola = 0;
+    String ventaP = "p01";
     String NombreProd[] = new String[500];
     String idProducto[] = new String[500];
     double PrecioProd[] = new double[500];
-    String date =(String)new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-    //String fecha = String.valueOf(date);
-
+    String date = (String) new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+    Nodo lista = null;
+    Pila pila = new Pila();
 
 
     @Override
@@ -57,15 +56,17 @@ public class Ventas extends AppCompatActivity {
         setContentView(R.layout.activity_ventas);
         listaPro = (ListView) findViewById(R.id.lv_productos);
         Escanear = (Button) findViewById(R.id.btnEscanearVentas);
-        Consultar = (Button) findViewById(R.id.btnConsultas);
+        Eliminar = (Button) findViewById(R.id.btnEliminar);
         Cambio = (EditText) findViewById(R.id.eCambio);
         Pagar = (Button) findViewById(R.id.btnPagar);
         PrecioPro = (TextView) findViewById(R.id.txtTotal);
         Escanear.setOnClickListener(EscanearBuscar);
         System.out.println(date);
+        llenarLista(productos);
+        conexion = new ConexionMySql();
 
 
-
+/*
         listaPro.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -76,11 +77,14 @@ public class Ventas extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 productos.remove(position);
+                                System.out.println(position);
                                 adaptador.notifyDataSetChanged();
                                 total = total-PrecioProd[position];
                                 idProducto[position] = null;
                                 PrecioPro.setText(String.valueOf("Total: $"+total));
+                                iCola--;
                                 dialog.cancel();
+
                             }
 
                         })
@@ -94,19 +98,40 @@ public class Ventas extends AppCompatActivity {
                 titulo.setTitle("Eliminar");
                 titulo.show();
             }
+        });*/
+        Eliminar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int i = 0;
+                System.out.println("Total: " + total);
+                for (int j = 0; PrecioProd[j] != 0; j++) {
+                    i = j;
+                }
+                System.out.println("Toatal v2: " + PrecioProd[i]);
+
+                pila.imprimirLista(lista);
+                lista = pila.pop(lista, productos, adaptador);
+                total = total - PrecioProd[i];
+                pila.imprimirLista(lista);
+                idProducto[i] = null;
+                PrecioPro.setText(String.valueOf("Total: $" + total));
+                System.out.println("Total: " + total);
+                iCola--;
+
+            }
         });
 
         Pagar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validar()){
+                if (validar()) {
                     Venta venta = new Venta();
                     venta.execute("insert into Venta (MetodoPago,Tipo,Total,FechaVenta,Id_Empleado,Id_Cliente) " +
                             "values('Efectivo','Presencial',?,?,1,0)");
                     CambioTotal = Double.parseDouble(Cambio.getText().toString()) - total;
                     productos.clear();
                     Cambio.setText("");
-                    for (int e = 0; e <NombreProd.length ; e++) {
+                    for (int e = 0; e < NombreProd.length; e++) {
                         NombreProd[e] = null;
                     }
                     PrecioPro.setText("Total: $0.0");
@@ -114,27 +139,23 @@ public class Ventas extends AppCompatActivity {
                     IdVenta presencial = new IdVenta();
                     presencial.execute("select * from Venta where Total=? and FechaVenta=? and Tipo='Presencial'");
 
-                    InsertaTienePresencial presencial1 = new InsertaTienePresencial();
+                    InsertaTiene tiene = new InsertaTiene();
                     //presencial1.execute("insert into VentaPresencial(Id_Venta,CodigoPresencial) values(?,?)");
-                    presencial1.execute("insert into Tiene(Id_Venta,Id_Producto) values(?,?)");
+                    tiene.execute("insert into Tiene(Id_Venta,Id_Producto) values(?,?)");
 
-                    TablaTiene tiene = new TablaTiene();
-                    tiene.execute("UPDATE Producto SET Existencia = Existencia - 1 WHERE Id_Producto = ?");
+                    Productos productos = new Productos();
+                    productos.execute("UPDATE Producto SET Existencia = Existencia - 1 WHERE Id_Producto = ?");
 
-
-                    //total = 0.0;
                 }
             }
         });
-
-        llenarLista(productos);
-        conexion = new ConexionMySql();
-
     }
+
     void llenarLista(ArrayList listaDatos) {
         adaptador = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, listaDatos);
         listaPro.setAdapter(adaptador);
     }
+
     //Metodo para escanear
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -146,8 +167,8 @@ public class Ventas extends AppCompatActivity {
                 productoBuscar = result.getContents();
                 System.out.println(productoBuscar);
                 productos.execute("select * from Producto where Id_Producto=?");
-               /* TablaTiene tiene = new TablaTiene();
-                tiene.execute("insert into Tiene(Id_Venta,Id_Producto) values(?,?)");*/
+
+
             } else {
                 Toast.makeText(this, "Error al escanear el código", Toast.LENGTH_SHORT).show();
             }
@@ -155,7 +176,7 @@ public class Ventas extends AppCompatActivity {
         }
     }//Termina metodo para escanear
 
-    //Metodo del boton escanera
+    //Metodo del boton escanear
     public View.OnClickListener EscanearBuscar = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -167,8 +188,8 @@ public class Ventas extends AppCompatActivity {
         }
     };//Termina metodo del boton escanear
 
-    //Inicia metodo VentaProductos
-    public  class VentaProductos extends AsyncTask<String,String,String> {
+    //Inicia metodo VentaProductos e implemetacion de Pila
+    public class VentaProductos extends AsyncTask<String, String, String> {
         boolean exito = false;
         String mensaje;
 
@@ -180,11 +201,11 @@ public class Ventas extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String msj) {
-            if(exito){
+            if (exito) {
                 llenarLista(productos);
-                PrecioPro.setText("Total: $"+String.valueOf(total));
+                PrecioPro.setText("Total: $" + String.valueOf(total));
                 //total = 0.0;
-            }else{
+            } else {
                 Toast.makeText(Ventas.this, msj, Toast.LENGTH_SHORT).show();
             }
 
@@ -193,29 +214,30 @@ public class Ventas extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
-            if (con != null){
+            if (con != null) {
                 try {
-                    PreparedStatement ps =con.prepareStatement(strings[0]);
+                    PreparedStatement ps = con.prepareStatement(strings[0]);
 
-                        ps.setString(1,productoBuscar);
-
+                    ps.setString(1, productoBuscar);
 
 
                     ResultSet rs = ps.executeQuery();
 
-                    if(rs.next()){
-                        exito=true;
-                            total = total+rs.getDouble("Precio");
-                            productos.add("Producto: "+rs.getString("NombreProd")+
-                                    " \nPrecio: "+rs.getDouble("Precio"));
-                            PrecioProd[i]= rs.getDouble("Precio");
-                            NombreProd[i] = rs.getString("NombreProd");
-                            idProducto[i] = rs.getString("Id_Producto");
+                    if (rs.next()) {
+                        exito = true;
+                        total = total + rs.getDouble("Precio");
+                        lista = pila.push(lista, iCola);
+                        productos.add("Producto: " + rs.getString("NombreProd") +
+                                " \nPrecio: " + rs.getDouble("Precio"));
+                        iCola++;
+                        PrecioProd[i] = rs.getDouble("Precio");
+                        NombreProd[i] = rs.getString("NombreProd");
+                        idProducto[i] = rs.getString("Id_Producto");
                         i++;
 
 
-                    }else{
-                        mensaje="No se encontro el producto";
+                    } else {
+                        mensaje = "No se encontro el producto";
                     }
 
                 } catch (SQLException e) {
@@ -226,49 +248,53 @@ public class Ventas extends AppCompatActivity {
                 } catch (SQLException e) {
                     mensaje = e.getMessage();
                 }
-            }else{
-                mensaje= "Error al conectar a la base de datos";
+            } else {
+                mensaje = "Error al conectar a la base de datos";
             }
 
             return mensaje;
         }
     }//Cierre VentaProductos
 
-    boolean validar(){
-        boolean retorno=true;
-        String c1 =Cambio.getText().toString();
-       if (c1.isEmpty()){
-           Cambio.setError("Ingresa el pago del cliente");
-           retorno = false;
-       }if (productos.isEmpty() && c1.isEmpty()){
-           final AlertDialog.Builder builder = new AlertDialog.Builder(Ventas.this);
-           builder.setMessage("No se puede hacer sin productos")
-                   .setCancelable(false)
-                   .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                       @Override
-                       public void onClick(DialogInterface dialog, int which) {
-                           Cambio.setText("");
-                           dialog.cancel();
-                       }
-                   });
+    //Metodo para validar campos
+    boolean validar() {
+        boolean retorno = true;
+        String c1 = Cambio.getText().toString();
+        if (c1.isEmpty()) {
+            Cambio.setError("Ingresa el pago del cliente");
+            retorno = false;
+        }
+        if (productos.isEmpty() && c1.isEmpty()) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(Ventas.this);
+            builder.setMessage("No se puede hacer una venta sin productos")
+                    .setCancelable(false)
+                    .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Cambio.setText("");
+                            dialog.cancel();
+                        }
+                    });
             AlertDialog titulo = builder.create();
             titulo.setTitle("ERROR");
             titulo.show();
-           retorno = false;
+            retorno = false;
         }
 
-       return retorno;
+        return retorno;
     }
 
-    void DialogoPersonalizado(){
+    //Metodo para ventana emergente del Cambio
+    void DialogoPersonalizado() {
         AlertDialog.Builder builder = new AlertDialog.Builder(Ventas.this);
         LayoutInflater inflater = getLayoutInflater();
-        View view = inflater.inflate(R.layout.pagototal,null);
+        View view = inflater.inflate(R.layout.pagototal, null);
         builder.setView(view);
+        builder.setCancelable(false);
         final AlertDialog dialog = builder.create();
         dialog.show();
         TextView txtcambio = view.findViewById(R.id.TXTCAMBIO);
-        txtcambio.setText("$"+String.valueOf(CambioTotal));
+        txtcambio.setText("$" + String.valueOf(CambioTotal));
         Button btnAceptar = view.findViewById(R.id.btnAceptar);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -280,7 +306,8 @@ public class Ventas extends AppCompatActivity {
         });
     }
 
-    public  class Venta extends AsyncTask<String,String,String> {
+    //Apertura de metodo venta
+    public class Venta extends AsyncTask<String, String, String> {
         boolean exito = false;
         String mensaje;
 
@@ -291,12 +318,12 @@ public class Ventas extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String msj) {
-            if(exito){
+            if (exito) {
                 total = 0.0;
                 CambioTotal = 0.0;
-               // Cambio = 0.0;
+                // Cambio = 0.0;
                 Toast.makeText(Ventas.this, msj, Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 Toast.makeText(Ventas.this, msj, Toast.LENGTH_LONG).show();
             }
 
@@ -305,18 +332,18 @@ public class Ventas extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
-            if (con != null){
+            if (con != null) {
                 try {
-                    PreparedStatement ps =con.prepareStatement(strings[0]);
+                    PreparedStatement ps = con.prepareStatement(strings[0]);
 
-                    ps.setDouble(1,total);
+                    ps.setDouble(1, total);
                     ps.setString(2, date);
 
 
-                    if(ps.executeUpdate() > 0){
+                    if (ps.executeUpdate() > 0) {
                         mensaje = "Venta exitosa";
-                    }else{
-                        mensaje="Venta no exitosa";
+                    } else {
+                        mensaje = "Venta no exitosa";
                     }
 
                 } catch (SQLException e) {
@@ -327,15 +354,16 @@ public class Ventas extends AppCompatActivity {
                 } catch (SQLException e) {
                     mensaje = e.getMessage();
                 }
-            }else{
-                mensaje= "Error al conectar a la base de datos";
+            } else {
+                mensaje = "Error al conectar a la base de datos";
             }
 
             return mensaje;
         }
     }//Cierre Venta
 
-    public  class IdVenta extends AsyncTask<String,String,String> {
+    //Apertura de metodo IdVenta
+    public class IdVenta extends AsyncTask<String, String, String> {
         boolean exito = false;
         String mensaje;
 
@@ -346,9 +374,9 @@ public class Ventas extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String msj) {
-            if(exito){
+            if (exito) {
 
-            }else{
+            } else {
                 Toast.makeText(Ventas.this, msj, Toast.LENGTH_LONG).show();
             }
 
@@ -357,23 +385,23 @@ public class Ventas extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
-            if (con != null){
+            if (con != null) {
                 try {
-                    PreparedStatement ps =con.prepareStatement(strings[0]);
+                    PreparedStatement ps = con.prepareStatement(strings[0]);
 
-                    ps.setDouble(1,total);
+                    ps.setDouble(1, total);
                     ps.setString(2, date);
 
                     ResultSet rs = ps.executeQuery();
 
-                    if(rs.next()){
+                    if (rs.next()) {
                         do {
-                            idVentaGeneral=rs.getInt("Id_Venta");
+                            idVentaGeneral = rs.getInt("Id_Venta");
                             //mensaje = "Entro a la consulta"+idVentaGeneral;
-                        }while (rs.next());
+                        } while (rs.next());
 
-                    }else{
-                        mensaje="Venta no exitosa";
+                    } else {
+                        mensaje = "Venta no exitosa";
                     }
 
                 } catch (SQLException e) {
@@ -384,15 +412,16 @@ public class Ventas extends AppCompatActivity {
                 } catch (SQLException e) {
                     mensaje = e.getMessage();
                 }
-            }else{
-                mensaje= "Error al conectar a la base de datos";
+            } else {
+                mensaje = "Error al conectar a la base de datos";
             }
 
             return mensaje;
         }
     }//Cierre IdVenta
 
-    public  class InsertaTienePresencial extends AsyncTask<String,String,String> {
+    //Apertura de metodo InsertaTiene
+    public class InsertaTiene extends AsyncTask<String, String, String> {
         boolean exito = false;
         String mensaje;
 
@@ -403,9 +432,9 @@ public class Ventas extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String msj) {
-            if(exito){
+            if (exito) {
 
-            }else{
+            } else {
                 Toast.makeText(Ventas.this, msj, Toast.LENGTH_LONG).show();
             }
 
@@ -414,23 +443,22 @@ public class Ventas extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
-            if (con != null){
+            if (con != null) {
                 try {
-                    for (int j = 0;idProducto[j] != null ; j++) {
-                        PreparedStatement ps =con.prepareStatement(strings[0]);
+                    for (int j = 0; idProducto[j] != null; j++) {
+                        PreparedStatement ps = con.prepareStatement(strings[0]);
 
-                        ps.setInt(1,idVentaGeneral);
-                        ps.setString(2,idProducto[j]);
-                        if(ps.executeUpdate() > 0){
+                        ps.setInt(1, idVentaGeneral);
+                        ps.setString(2, idProducto[j]);
+                        if (ps.executeUpdate() > 0) {
 
-                        }else{
-                            mensaje="Error";
+                        } else {
+                            mensaje = "Error";
                         }
                     }
 
 
-                   // ResultSet rs = ps.executeQuery();
-
+                    // ResultSet rs = ps.executeQuery();
 
 
                 } catch (SQLException e) {
@@ -441,15 +469,16 @@ public class Ventas extends AppCompatActivity {
                 } catch (SQLException e) {
                     mensaje = e.getMessage();
                 }
-            }else{
-                mensaje= "Error al conectar a la base de datos";
+            } else {
+                mensaje = "Error al conectar a la base de datos";
             }
 
             return mensaje;
         }
     }//Cierre InsertaTienePresencial
 
-    public  class TablaTiene extends AsyncTask<String,String,String> {
+    //Apertura de metodo Productos
+    public class Productos extends AsyncTask<String, String, String> {
         boolean exito = false;
         String mensaje;
 
@@ -460,11 +489,11 @@ public class Ventas extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String msj) {
-            if(exito){
+            if (exito) {
                 /*for (int e = 0; e <idProducto.length ; e++) {
                     idProducto[e] = null;
                 }*/
-            }else{
+            } else {
                 Toast.makeText(Ventas.this, msj, Toast.LENGTH_LONG).show();
             }
 
@@ -473,18 +502,18 @@ public class Ventas extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             Connection con = conexion.Conectar();
-            if (con != null){
+            if (con != null) {
                 try {
-                    for (int j = 0; idProducto[j] != null ; j++) {
-                        PreparedStatement ps =con.prepareStatement(strings[0]);
+                    for (int j = 0; idProducto[j] != null; j++) {
+                        PreparedStatement ps = con.prepareStatement(strings[0]);
                         ps.setString(1, idProducto[j]);
 
                         // ResultSet rs = ps.executeQuery();
 
-                        if(ps.executeUpdate() > 0){
+                        if (ps.executeUpdate() > 0) {
                             mensaje = "Exitoso";
-                        }else{
-                            mensaje="Error";
+                        } else {
+                            mensaje = "Error";
                         }
                     }
 
@@ -497,15 +526,13 @@ public class Ventas extends AppCompatActivity {
                 } catch (SQLException e) {
                     mensaje = e.getMessage();
                 }
-            }else{
-                mensaje= "Error al conectar a la base de datos";
+            } else {
+                mensaje = "Error al conectar a la base de datos";
             }
 
             return mensaje;
         }
     }//Cierre InsertaTienePresencial
-
-
 
 
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Diseño</string>
+    <string name="app_name" translatable="false">Cremería LIZ</string>
     <string name="Txt_Correo">Ingresa tu correo</string>
     <string name="Txt_Contraseña">Ingresa tu contraseña</string>
     <string name="Btn_Ingresar">Iniciar sesión</string>

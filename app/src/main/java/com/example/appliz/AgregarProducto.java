@@ -84,6 +84,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
         btn_Agregar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("PORFAVOR "+etPrecioAg.getText().toString());
                 if (validar()){
                     Codigo = etCodigoAg.getText().toString();
                     Nombre = etNombreAg.getText().toString();
@@ -92,6 +93,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
                     SubCategoria = sSubcategoria.getSelectedItem().toString();
                     Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
                     Descripcion = etDescripcionAg.getText().toString();
+
 
 
                     Agregar agregar = new Agregar();
@@ -286,10 +288,11 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
         boolean retorno = true;
         String Codigo = etCodigoAg.getText().toString();
         String Nombre = etNombreAg.getText().toString();
-        Double Precio = Double.parseDouble(etPrecioAg.getText().toString());
+       // Double Precio = Double.parseDouble(etPrecioAg.getText().toString());
+
         String Categoria = sCategoria.getSelectedItem().toString();
         String SubCategoria = sSubcategoria.getSelectedItem().toString();
-        int Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
+        //int Existencia = Integer.parseInt(etExistenciaAg.getText().toString());
 
 
 
@@ -300,7 +303,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
         if (Nombre.isEmpty()) {
             etNombreAg.setError("Por favor ingresa el nombre del producto");
             retorno = false;
-        }if (Precio <= 0){
+        }if (etPrecioAg.getText().toString().isEmpty()){
             etPrecioAg.setError("Por favor ingresa un valor");
             retorno = false;
         }if (Categoria.isEmpty()) {
@@ -309,7 +312,7 @@ public class AgregarProducto extends AppCompatActivity implements AdapterView.On
         }if (SubCategoria.isEmpty()) {
             Toast.makeText(this, "Por favor selecciona una subcategoría", Toast.LENGTH_SHORT).show();
             retorno = false;
-        }if (Existencia <= 0 ) {
+        }if (etExistenciaAg.getText().toString().isEmpty()) {
             etExistenciaAg.setError("Por favor ingresa un valor");
             retorno = false;
         }

@@ -114,67 +114,70 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
             public void onClick(View v) {
                 System.out.println(sCategoria.getSelectedItemPosition());
                 System.out.println(sProveedor.getSelectedItemPosition());
-                if (sCategoria.getSelectedItemPosition() == 0 && sProveedor.getSelectedItemPosition() ==0){
-                    if (CodigoPro.getText().toString().isEmpty()){
-                        Codigo= String.valueOf(-1);
-                    }else{
-                        Codigo = CodigoPro.getText().toString();
-                    }
-                    Nombre = NombrePro.getText().toString();
-                    Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
-                    Precio = Double.parseDouble(PrecioPro.getText().toString());
-                    Descripcion = DescripcionPro.getText().toString();
-                    Modificar modificar = new Modificar();
-                    modificar.execute("update Producto set NombreProd=?,Existencia=?,Precio=?," +
-                            "Descripcion=?,Id_Empleado=?  where Id_Producto=? ","M");
+                if (validar()){
+                    if (sCategoria.getSelectedItemPosition() == 0 && sProveedor.getSelectedItemPosition() ==0){
+                        if (CodigoPro.getText().toString().isEmpty()){
+                            Codigo= String.valueOf(-1);
+                        }else{
+                            Codigo = CodigoPro.getText().toString();
+                        }
+                        Nombre = NombrePro.getText().toString();
+                        Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                        Precio = Double.parseDouble(PrecioPro.getText().toString());
+                        Descripcion = DescripcionPro.getText().toString();
+                        Modificar modificar = new Modificar();
+                        modificar.execute("update Producto set NombreProd=?,Existencia=?,Precio=?," +
+                                "Descripcion=?,Id_Empleado=?  where Id_Producto=? ","M");
 
-                }else if(sCategoria.getSelectedItemPosition() != 0 && sProveedor.getSelectedItemPosition()==0){
-                    if (CodigoPro.getText().toString().isEmpty()){
-                        Codigo= String.valueOf(-1);
-                    }else{
-                        Codigo = CodigoPro.getText().toString();
-                    }
-                    Nombre = NombrePro.getText().toString();
-                    Categoria = sCategoria.getSelectedItem().toString();
-                    SubCategoria = sSubcategoria.getSelectedItem().toString();
-                    Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
-                    Precio = Double.parseDouble(PrecioPro.getText().toString());
-                    Descripcion = DescripcionPro.getText().toString();
-                    Modificar modificar = new Modificar();
-                    modificar.execute("update Producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
-                            "Descripcion=?,Id_Empleado=? where Id_Producto=? ","M");
-                }else if (sProveedor.getSelectedItemPosition() != 0 && sCategoria.getSelectedItemPosition()==0){
-                    if (CodigoPro.getText().toString().isEmpty()){
-                        Codigo= String.valueOf(-1);
-                    }else{
-                        Codigo = CodigoPro.getText().toString();
-                    }
-                    Nombre = NombrePro.getText().toString();
-                    Categoria = sCategoria.getSelectedItem().toString();
-                    SubCategoria = sSubcategoria.getSelectedItem().toString();
-                    Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
-                    Precio = Double.parseDouble(PrecioPro.getText().toString());
-                    Descripcion = DescripcionPro.getText().toString();
-                    Modificar modificar = new Modificar();
-                    modificar.execute("update Producto set NombreProd=?,Existencia=?,Precio=?," +
-                            "Descripcion=?,Id_Empleado=?,Id_Proveedor=? where Id_Producto=? ","M");
+                    }else if(sCategoria.getSelectedItemPosition() != 0 && sProveedor.getSelectedItemPosition()==0){
+                        if (CodigoPro.getText().toString().isEmpty()){
+                            Codigo= String.valueOf(-1);
+                        }else{
+                            Codigo = CodigoPro.getText().toString();
+                        }
+                        Nombre = NombrePro.getText().toString();
+                        Categoria = sCategoria.getSelectedItem().toString();
+                        SubCategoria = sSubcategoria.getSelectedItem().toString();
+                        Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                        Precio = Double.parseDouble(PrecioPro.getText().toString());
+                        Descripcion = DescripcionPro.getText().toString();
+                        Modificar modificar = new Modificar();
+                        modificar.execute("update Producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
+                                "Descripcion=?,Id_Empleado=? where Id_Producto=? ","M");
+                    }else if (sProveedor.getSelectedItemPosition() != 0 && sCategoria.getSelectedItemPosition()==0){
+                        if (CodigoPro.getText().toString().isEmpty()){
+                            Codigo= String.valueOf(-1);
+                        }else{
+                            Codigo = CodigoPro.getText().toString();
+                        }
+                        Nombre = NombrePro.getText().toString();
+                        Categoria = sCategoria.getSelectedItem().toString();
+                        SubCategoria = sSubcategoria.getSelectedItem().toString();
+                        Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                        Precio = Double.parseDouble(PrecioPro.getText().toString());
+                        Descripcion = DescripcionPro.getText().toString();
+                        Modificar modificar = new Modificar();
+                        modificar.execute("update Producto set NombreProd=?,Existencia=?,Precio=?," +
+                                "Descripcion=?,Id_Empleado=?,Id_Proveedor=? where Id_Producto=? ","M");
 
-                }else if(sCategoria.getSelectedItemPosition() != 0 && sProveedor.getSelectedItemPosition() !=0){
-                    if (CodigoPro.getText().toString().isEmpty()){
-                        Codigo= String.valueOf(-1);
-                    }else{
-                        Codigo = CodigoPro.getText().toString();
+                    }else if(sCategoria.getSelectedItemPosition() != 0 && sProveedor.getSelectedItemPosition() !=0){
+                        if (CodigoPro.getText().toString().isEmpty()){
+                            Codigo= String.valueOf(-1);
+                        }else{
+                            Codigo = CodigoPro.getText().toString();
+                        }
+                        Nombre = NombrePro.getText().toString();
+                        Categoria = sCategoria.getSelectedItem().toString();
+                        SubCategoria = sSubcategoria.getSelectedItem().toString();
+                        Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
+                        Precio = Double.parseDouble(PrecioPro.getText().toString());
+                        Descripcion = DescripcionPro.getText().toString();
+                        Modificar modificar = new Modificar();
+                        modificar.execute("update Producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
+                                "Descripcion=?,Id_Empleado=?,Id_Proveedor=? where Id_Producto=? ","M");
                     }
-                    Nombre = NombrePro.getText().toString();
-                    Categoria = sCategoria.getSelectedItem().toString();
-                    SubCategoria = sSubcategoria.getSelectedItem().toString();
-                    Existencia = Integer.parseInt(ExistenciaPro.getText().toString());
-                    Precio = Double.parseDouble(PrecioPro.getText().toString());
-                    Descripcion = DescripcionPro.getText().toString();
-                    Modificar modificar = new Modificar();
-                    modificar.execute("update Producto set NombreProd=?,Categoria=?,SubCategoria=?,Existencia=?,Precio=?," +
-                            "Descripcion=?,Id_Empleado=?,Id_Proveedor=? where Id_Producto=? ","M");
                 }
+
             }
         });
 
@@ -454,4 +457,26 @@ public class ModificarProducto extends AppCompatActivity implements AdapterView.
             return mensaje;
         }
     }//Cierre Proveedor
+
+    public boolean validar() {
+        boolean retorno = true;
+
+        if (CodigoPro.getText().toString().isEmpty()){
+            CodigoPro.setError("Ingresa un codigo");
+            retorno = false;
+        }
+        if (NombrePro.getText().toString().isEmpty()){
+            NombrePro.setError("Ingresa un Nombre");
+            retorno = false;
+        }if (ExistenciaPro.getText().toString().isEmpty()){
+            ExistenciaPro.setError("Ingresa existencia de producto");
+            retorno = false;
+        }
+        if (PrecioPro.getText().toString().isEmpty()){
+            PrecioPro.setError("Ingresa el precio del producto");
+            retorno = false;
+        }
+
+        return retorno;
+    }
 }

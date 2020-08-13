@@ -223,8 +223,6 @@ public class ConsultarProductos extends AppCompatActivity{
         AlertDialog titulo = alerta.create();
         titulo.setTitle("Producto");
         titulo.show();
-
-
     }
 
 

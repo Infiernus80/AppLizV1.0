@@ -8,7 +8,7 @@
     tools:context=".Ventas">
 
     <Button
-        android:id="@+id/btnConsultas"
+        android:id="@+id/btnEliminar"
         android:layout_width="126dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -18,7 +18,7 @@
         android:layout_marginLeft="25dp"
         android:layout_marginTop="25dp"
         android:background="@drawable/btn_redondo"
-        android:text="Consultar" />
+        android:text=" Eliminar ultimo producto" />
 
     <Button
         android:id="@+id/btnEscanearVentas"
@@ -71,7 +71,7 @@
         android:id="@+id/eCambio"
         android:layout_width="96dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnConsultas"
+        android:layout_below="@+id/btnEliminar"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginTop="5dp"
@@ -104,7 +104,7 @@
         android:id="@+id/textView19"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnConsultas"
+        android:layout_below="@+id/btnEliminar"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_marginStart="23dp"

@@ -65,14 +65,13 @@
         android:layout_marginRight="18dp"
         android:ems="10"
         android:hint="Precio"
-        android:inputType="number"
+        android:inputType="text|numberDecimal"
         android:textColor="#000000"
         android:textColorHint="#000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etExistenciaAg"
-        tools:text="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/etExistenciaAg" />
 
     <EditText
         android:id="@+id/etExistenciaAg"
@@ -88,14 +87,13 @@
         android:layout_marginRight="207dp"
         android:ems="10"
         android:hint="Existencia"
-        android:inputType="number"
+        android:inputType="number|text"
         android:textColor="#000000"
         android:textColorHint="#000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/sSubcategoria"
-        tools:text="0" />
+        app:layout_constraintTop_toTopOf="@+id/sSubcategoria" />
 
     <EditText
         android:id="@+id/etDescripcionAg"
@@ -171,7 +169,6 @@
         android:layout_marginEnd="32dp"
         android:layout_marginRight="6dp"
         android:background="@drawable/bg_spinner"
-        android:popupBackground="@drawable/fondospinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etNombreAg" />
@@ -189,7 +186,6 @@
         android:layout_marginEnd="32dp"
         android:layout_marginRight="95dp"
         android:background="@drawable/bg_spinner"
-        android:popupBackground="@drawable/fondospinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -208,7 +204,6 @@
         android:layout_marginEnd="32dp"
         android:layout_marginRight="34dp"
         android:background="@drawable/bg_spinner"
-        android:popupBackground="@drawable/fondospinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
